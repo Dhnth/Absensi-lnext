@@ -1,8 +1,53 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Calendar, QrCode, Trophy, Users } from "lucide-react"
+import { ArrowRight, Calendar, QrCode, Trophy, Users, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
 
 export default function LandingPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const cekLogin = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        // Cek apakah sudah punya nomor anggota
+        const { data: anggota } = await supabase
+          .from('anggota')
+          .select('nomor_anggota')
+          .eq('email', user.email)
+          .single()
+
+        if (anggota?.nomor_anggota) {
+          router.push('/dashboard')
+        } else {
+          router.push('/pairing')
+        }
+      } else {
+        setLoading(false)
+      }
+    }
+
+    cekLogin()
+  }, [router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-slate-600">Memuat...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Navbar */}
@@ -28,7 +73,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="pt-32 pb-20 container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-sm font-medium mb-8">
+          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-sm font-medium mb-8 animate-pulse">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -48,8 +93,9 @@ export default function LandingPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/register">
-              <Button size="lg" className="w-full sm:w-auto gap-2">
-                Mulai Sekarang <ArrowRight className="w-4 h-4" />
+              <Button size="lg" className="w-full sm:w-auto gap-2 group">
+                Mulai Sekarang 
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
             <Link href="#fitur">
@@ -62,12 +108,13 @@ export default function LandingPage() {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20">
             {[
-              { label: "Anggota Aktif", value: "500+" },
-              { label: "Total Absensi", value: "10K+" },
-              { label: "Poin Dibagikan", value: "50K+" },
-              { label: "Komunitas", value: "25+" },
+              { label: "Anggota Aktif", value: "500+", icon: "👥" },
+              { label: "Total Absensi", value: "10K+", icon: "📊" },
+              { label: "Poin Dibagikan", value: "50K+", icon: "🏆" },
+              { label: "Komunitas", value: "25+", icon: "🤝" },
             ].map((stat, i) => (
-              <div key={i} className="text-center">
+              <div key={i} className="text-center group hover:scale-105 transition-transform">
+                <div className="text-3xl mb-2">{stat.icon}</div>
                 <div className="text-3xl font-bold text-blue-600">{stat.value}</div>
                 <div className="text-sm text-slate-600">{stat.label}</div>
               </div>
@@ -109,17 +156,17 @@ export default function LandingPage() {
                 description: "Buat acara, undang anggota, dan lihat kehadiran di kalender"
               },
               {
-                icon: <ArrowRight className="w-8 h-8" />,
+                icon: <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
                 title: "Export Laporan",
                 description: "Download rekap absensi ke Excel dengan filter periode"
               },
               {
-                icon: <ArrowRight className="w-8 h-8" />,
+                icon: <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
                 title: "Real-time Update",
                 description: "Leaderboard dan statistik update otomatis saat ada absen baru"
               }
             ].map((fitur, i) => (
-              <div key={i} className="group p-8 bg-slate-50 rounded-2xl hover:bg-blue-50 transition-all duration-300 hover:scale-105">
+              <div key={i} className="group p-8 bg-slate-50 rounded-2xl hover:bg-blue-50 transition-all duration-300 hover:scale-105 hover:shadow-lg">
                 <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                   {fitur.icon}
                 </div>
@@ -141,7 +188,7 @@ export default function LandingPage() {
             Gabung sekarang dan rasakan kemudahan mengelola absensi komunitas
           </p>
           <Link href="/auth/register">
-            <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-blue-50">
+            <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-blue-50 hover:scale-105 transition-transform">
               Daftar Sekarang
             </Button>
           </Link>
