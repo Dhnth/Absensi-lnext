@@ -117,13 +117,22 @@ export default function LaporanPage() {
       const rekapData: RekapAnggota[] = []
 
       semuaAnggota?.forEach(anggota => {
+
+        // TAMBAHKAN INTERFACE/TYPE
+        interface AbsensiItem {
+          status: string;
+          poin: number;
+          // tambah properti lain jika ada
+        }
+
+
         const absenAnggota = absensiMap.get(anggota.id) || []
         
-        const totalHadir = absenAnggota.filter(a => a.status === 'hadir').length
-        const totalIzin = absenAnggota.filter(a => a.status === 'izin').length
-        const totalSakit = absenAnggota.filter(a => a.status === 'sakit').length
-        const totalAlpha = absenAnggota.filter(a => a.status === 'alpha').length
-        const totalPoin = absenAnggota.reduce((sum, a) => sum + a.poin, 0)
+        const totalHadir = absenAnggota.filter((a: AbsensiItem) => a.status === 'hadir').length
+        const totalIzin = absenAnggota.filter((a: AbsensiItem) => a.status === 'izin').length
+        const totalSakit = absenAnggota.filter((a: AbsensiItem) => a.status === 'sakit').length
+        const totalAlpha = absenAnggota.filter((a: AbsensiItem) => a.status === 'alpha').length
+        const totalPoin = absenAnggota.reduce((sum: number, a: AbsensiItem) => sum + a.poin, 0)
 
         rekapData.push({
           anggota_id: anggota.id,
