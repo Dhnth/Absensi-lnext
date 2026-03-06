@@ -228,17 +228,16 @@ const menuItems: MenuItem[] = [
     setOpenSubmenu(openSubmenu === title ? null : title);
   };
 
-  // Animasi variants
-  const sidebarVariants = {
-    open: { 
-      x: 0, 
-      transition: { type: "spring", stiffness: 300, damping: 30 } 
-    },
-    closed: { 
-      x: "-100%", 
-      transition: { type: "spring", stiffness: 300, damping: 30 } 
-    },
-  };
+const sidebarVariants = {
+  open: { 
+    x: 0,
+    transition: { duration: 0.3, ease: "easeInOut" }
+  },
+  closed: { 
+    x: "-100%",
+    transition: { duration: 0.3, ease: "easeInOut" }
+  },
+};
 
   if (loading) {
     return (
