@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, memo } from "react"
+import { useState, useMemo, memo, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
@@ -42,7 +42,7 @@ export const TabelRekap = memo(function TabelRekap({
   }, [filteredData, currentPage, itemsPerPage])
 
   // Reset page when filter changes
-  useState(() => {
+  useEffect(() => {
     setCurrentPage(1)
   }, [filteredData])
 
