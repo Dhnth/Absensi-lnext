@@ -1,41 +1,50 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, Calendar, QrCode, Trophy, Users, Loader2 } from "lucide-react"
-import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowRight,
+  Calendar,
+  QrCode,
+  Trophy,
+  Users,
+  Loader2,
+} from "lucide-react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 export default function LandingPage() {
-  const router = useRouter()
-  const [loading, setLoading] = useState(true)
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const cekLogin = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (user) {
         // Cek apakah sudah punya nomor anggota
         const { data: anggota } = await supabase
-          .from('anggota')
-          .select('nomor_anggota')
-          .eq('email', user.email)
-          .single()
+          .from("anggota")
+          .select("nomor_anggota")
+          .eq("email", user.email)
+          .single();
 
         if (anggota?.nomor_anggota) {
-          router.push('/dashboard')
+          router.push("/dashboard");
         } else {
-          router.push('/pairing')
+          router.push("/pairing");
         }
       } else {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    cekLogin()
-  }, [router])
+    cekLogin();
+  }, [router]);
 
   if (loading) {
     return (
@@ -45,7 +54,7 @@ export default function LandingPage() {
           <p className="text-slate-600">Memuat...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -80,21 +89,21 @@ export default function LandingPage() {
             </span>
             Solusi Absensi Digital untuk Komunitas
           </div>
-          
+
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
             Absensi Jadi Lebih
             <span className="block text-blue-600">Mudah & Menyenangkan</span>
           </h1>
-          
+
           <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto">
-            Kelola kehadiran anggota komunitas dengan sistem poin, streak, 
-            dan leaderboard interaktif. Dilengkapi QR Code untuk absen cepat!
+            Kelola kehadiran anggota komunitas dengan sistem poin, streak, dan
+            leaderboard interaktif. Dilengkapi QR Code untuk absen cepat!
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/register">
               <Button size="lg" className="w-full sm:w-auto gap-2 group">
-                Mulai Sekarang 
+                Mulai Sekarang
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
@@ -113,9 +122,14 @@ export default function LandingPage() {
               { label: "Poin Dibagikan", value: "50K+", icon: "🏆" },
               { label: "Komunitas", value: "25+", icon: "🤝" },
             ].map((stat, i) => (
-              <div key={i} className="text-center group hover:scale-105 transition-transform">
+              <div
+                key={i}
+                className="text-center group hover:scale-105 transition-transform"
+              >
                 <div className="text-3xl mb-2">{stat.icon}</div>
-                <div className="text-3xl font-bold text-blue-600">{stat.value}</div>
+                <div className="text-3xl font-bold text-blue-600">
+                  {stat.value}
+                </div>
                 <div className="text-sm text-slate-600">{stat.label}</div>
               </div>
             ))}
@@ -138,35 +152,72 @@ export default function LandingPage() {
               {
                 icon: <QrCode className="w-8 h-8" />,
                 title: "QR Code Unik",
-                description: "Setiap anggota punya QR Code unik untuk absen cepat 1 detik"
+                description:
+                  "Setiap anggota punya QR Code unik untuk absen cepat 1 detik",
               },
               {
                 icon: <Trophy className="w-8 h-8" />,
                 title: "Sistem Poin & Streak",
-                description: "Hadir +10 poin, Izin/Sakit +5 poin, ada bonus streak beruntun"
+                description:
+                  "Hadir +10 poin, Izin/Sakit +5 poin, ada bonus streak beruntun",
               },
               {
                 icon: <Users className="w-8 h-8" />,
                 title: "Leaderboard Interaktif",
-                description: "Lihat peringkat anggota dengan podium 3 besar dan filter kelas"
+                description:
+                  "Lihat peringkat anggota dengan podium 3 besar dan filter kelas",
               },
               {
                 icon: <Calendar className="w-8 h-8" />,
                 title: "Manajemen Acara",
-                description: "Buat acara, undang anggota, dan lihat kehadiran di kalender"
+                description:
+                  "Buat acara, undang anggota, dan lihat kehadiran di kalender",
               },
               {
-                icon: <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+                icon: (
+                  <svg
+                    className="w-8 h-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                ),
                 title: "Export Laporan",
-                description: "Download rekap absensi ke Excel dengan filter periode"
+                description:
+                  "Download rekap absensi ke Excel dengan filter periode",
               },
               {
-                icon: <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
+                icon: (
+                  <svg
+                    className="w-8 h-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                ),
                 title: "Real-time Update",
-                description: "Leaderboard dan statistik update otomatis saat ada absen baru"
-              }
+                description:
+                  "Leaderboard dan statistik update otomatis saat ada absen baru",
+              },
             ].map((fitur, i) => (
-              <div key={i} className="group p-8 bg-slate-50 rounded-2xl hover:bg-blue-50 transition-all duration-300 hover:scale-105 hover:shadow-lg">
+              <div
+                key={i}
+                className="group p-8 bg-slate-50 rounded-2xl hover:bg-blue-50 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              >
                 <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                   {fitur.icon}
                 </div>
@@ -188,7 +239,11 @@ export default function LandingPage() {
             Gabung sekarang dan rasakan kemudahan mengelola absensi komunitas
           </p>
           <Link href="/auth/register">
-            <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-blue-50 hover:scale-105 transition-transform">
+            <Button
+              size="lg"
+              variant="secondary"
+              className="bg-white text-blue-600 hover:bg-blue-50 hover:scale-105 transition-transform"
+            >
               Daftar Sekarang
             </Button>
           </Link>
@@ -212,5 +267,5 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

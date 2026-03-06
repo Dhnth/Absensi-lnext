@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+dist
+public
+*.config.js
+*.config.ts
+.env
+.env.local
+.env.*

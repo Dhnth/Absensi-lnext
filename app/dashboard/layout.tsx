@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter, usePathname } from "next/navigation"
-import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
 import {
   Home,
   Users,
@@ -22,215 +22,254 @@ import {
   Activity,
   ChevronDown,
   Award,
-  FileText
-} from "lucide-react"
+  FileText,
+  ScanQrCode,
+  UserRoundPen,
+  School,
+  LayoutDashboard,
+  CalendarDays,
+  UserCog,
+  HelpCircle,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-type UserRole = 'admin' | 'pengurus' | 'anggota'
+type UserRole = "admin" | "pengurus" | "anggota";
 
 interface MenuItem {
-  title: string
-  href: string
-  icon: React.ReactNode
-  roles: UserRole[]
-  submenu?: MenuItem[]
+  title: string;
+  href: string;
+  icon: React.ReactNode;
+  roles: UserRole[];
+  submenu?: MenuItem[];
 }
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const [loading, setLoading] = useState(true)
-  const [userRole, setUserRole] = useState<UserRole>('anggota')
-  const [userData, setUserData] = useState<any>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
+  const router = useRouter();
+  const pathname = usePathname();
+  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<UserRole>("anggota");
+  const [userData, setUserData] = useState<any>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // Cek ukuran layar
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    
+    checkScreen();
+    window.addEventListener('resize', checkScreen);
+    
+    return () => window.removeEventListener('resize', checkScreen);
+  }, []);
 
   useEffect(() => {
     const getUserData = async () => {
-      const supabase = createClient()
-      
-      const { data: { user } } = await supabase.auth.getUser()
-      
+      const supabase = createClient();
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
-        router.push('/auth/login')
-        return
+        router.push("/auth/login");
+        return;
       }
 
       const { data: anggota } = await supabase
-        .from('anggota')
-        .select('*')
-        .eq('email', user.email)
-        .single()
+        .from("anggota")
+        .select("*")
+        .eq("email", user.email)
+        .single();
 
       if (!anggota?.nomor_anggota) {
-        router.push('/pairing')
-        return
+        router.push("/pairing");
+        return;
       }
 
-      setUserData(anggota)
-      setUserRole(anggota.role as UserRole)
-      setLoading(false)
-    }
+      setUserData(anggota);
+      setUserRole(anggota.role as UserRole);
+      setLoading(false);
+    };
 
-    getUserData()
-  }, [router])
+    getUserData();
+  }, [router]);
 
   const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
-  }
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
+  };
 
-  // Menu items berdasarkan role
-  const menuItems: MenuItem[] = [
+  // Menu items (sama seperti sebelumnya)
+const menuItems: MenuItem[] = [
     {
       title: "Dashboard",
       href: "/dashboard",
       icon: <Home className="w-5 h-5" />,
-      roles: ['admin', 'pengurus', 'anggota']
+      roles: ["admin", "pengurus", "anggota"],
+    },
+    {
+      title: "Manajemen Kelas",
+      href: "/admin/kelas",
+      icon: <School className="w-5 h-5" />,
+      roles: ["admin"],
     },
     {
       title: "Absensi",
       href: "#",
-      icon: <QrCode className="w-5 h-5" />,
-      roles: ['admin', 'pengurus', 'anggota'],
+      icon: <UserRoundPen className="w-5 h-5" />,
+      roles: ["admin", "pengurus", "anggota"],
       submenu: [
         {
           title: "Absen QR",
           href: "/absen/qr",
+          icon: <ScanQrCode className="w-5 h-5" />,
+          roles: ["admin", "pengurus"],
+        },
+        {
+          title: "QR Code Saya", // <-- UNTUK ANGGOTA
+          href: "/qr-saya",
           icon: <QrCode className="w-5 h-5" />,
-          roles: ['admin', 'pengurus', 'anggota']
+          roles: ["admin", "pengurus", "anggota"],
         },
         {
           title: "Absen Manual",
           href: "/absen/manual",
           icon: <ClipboardList className="w-5 h-5" />,
-          roles: ['admin', 'pengurus']
+          roles: ["admin", "pengurus"],
         },
         {
-          title: "Riwayat Absensi",
-          href: "/absen/riwayat",
+          title: "Daftar Absensi",
+          href: "/absen/daftar",
           icon: <FileText className="w-5 h-5" />,
-          roles: ['admin', 'pengurus', 'anggota']
+          roles: ["admin", "pengurus", "anggota"],
+        },
+        {
+          title: "Ajukan Izin/Sakit",
+          href: "/absen/ajukan",
+          icon: <FileText className="w-5 h-5" />,
+          roles: ["anggota", "pengurus", "admin"], // Semua bisa, tapi anggota yang paling sering
         }
-      ]
+      ],
     },
     {
       title: "Manajemen Anggota",
       href: "#",
       icon: <Users className="w-5 h-5" />,
-      roles: ['admin', 'pengurus'],
+      roles: ["admin", "pengurus"],
       submenu: [
         {
           title: "Daftar Anggota",
           href: "/anggota",
           icon: <Users className="w-5 h-5" />,
-          roles: ['admin', 'pengurus']
-        },
-        {
-          title: "Tambah Anggota",
-          href: "/anggota/tambah",
-          icon: <UserPlus className="w-5 h-5" />,
-          roles: ['admin', 'pengurus']
+          roles: ["admin", "pengurus"],
         },
         {
           title: "Stok Nomor",
           href: "/admin/stok-nomor",
           icon: <Hash className="w-5 h-5" />,
-          roles: ['admin']
-        }
-      ]
+          roles: ["admin"],
+        },
+      ],
     },
     {
       title: "Leaderboard",
       href: "/leaderboard",
       icon: <Trophy className="w-5 h-5" />,
-      roles: ['admin', 'pengurus', 'anggota']
+      roles: ["admin", "pengurus", "anggota"],
     },
     {
       title: "Acara",
       href: "/acara",
       icon: <Calendar className="w-5 h-5" />,
-      roles: ['admin', 'pengurus', 'anggota']
+      roles: ["admin", "pengurus", "anggota"],
     },
     {
       title: "Laporan",
-      href: "#",
-      icon: <BarChart3 className="w-5 h-5" />,
-      roles: ['admin', 'pengurus'],
-      submenu: [
-        {
-          title: "Rekap Absensi",
-          href: "/laporan/rekap",
-          icon: <FileText className="w-5 h-5" />,
-          roles: ['admin', 'pengurus']
-        },
-        {
-          title: "Export Excel",
-          href: "/laporan/export",
-          icon: <FileText className="w-5 h-5" />,
-          roles: ['admin', 'pengurus']
-        }
-      ]
+      href: "/laporan",
+      icon: <FileText className="w-5 h-5" />,
+      roles: ['admin', 'pengurus']
     },
     {
       title: "Admin",
       href: "#",
       icon: <Settings className="w-5 h-5" />,
-      roles: ['admin'],
+      roles: ["admin"],
       submenu: [
         {
-          title: "Log Aktivitas",
-          href: "/admin/log-aktivitas",
-          icon: <Activity className="w-5 h-5" />,
-          roles: ['admin']
+          title: "Pengaturan Absen", // <-- TAMBAHKAN INI
+          href: "/admin/pengaturan-absen",
+          icon: <Calendar className="w-5 h-5" />,
+          roles: ["admin"],
         },
         {
           title: "Pengaturan",
           href: "/admin/pengaturan",
           icon: <Settings className="w-5 h-5" />,
-          roles: ['admin']
-        }
-      ]
-    }
-  ]
+          roles: ["admin"],
+        },
+      ],
+    },
+  ];
 
-  // Filter menu berdasarkan role
-  const filteredMenu = menuItems.filter(item => 
-    item.roles.includes(userRole)
-  )
+
+  const filteredMenu = menuItems.filter((item) =>
+    item.roles.includes(userRole),
+  );
 
   const toggleSubmenu = (title: string) => {
-    setOpenSubmenu(openSubmenu === title ? null : title)
-  }
+    setOpenSubmenu(openSubmenu === title ? null : title);
+  };
+
+  // Animasi variants
+  const sidebarVariants = {
+    open: { 
+      x: 0, 
+      transition: { type: "spring", stiffness: 300, damping: 30 } 
+    },
+    closed: { 
+      x: "-100%", 
+      transition: { type: "spring", stiffness: 300, damping: 30 } 
+    },
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="rounded-full h-12 w-12 border-b-2 border-blue-600"
+        />
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Mobile Menu Button */}
-      <button
+      <motion.button
+        whileTap={{ scale: 0.95 }}
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md"
+        className="lg:hidden fixed top-4 right-4 z-50 p-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
       >
         {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-      </button>
+      </motion.button>
 
       {/* Sidebar */}
-      <aside className={`
-        fixed top-0 left-0 z-40 w-64 h-screen bg-white border-r transition-transform
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-        lg:translate-x-0
-      `}>
+      <motion.aside
+        initial={false}
+        animate={sidebarOpen || isDesktop ? "open" : "closed"}
+        variants={sidebarVariants}
+        className="fixed top-0 left-0 z-40 w-64 h-screen bg-white border-r shadow-xl lg:shadow-none"
+      >
         {/* Logo */}
         <div className="h-16 flex items-center gap-2 px-6 border-b">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -244,16 +283,21 @@ export default function DashboardLayout({
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
               <span className="text-blue-600 font-semibold">
-                {userData?.nama?.charAt(0) || 'U'}
+                {userData?.nama?.charAt(0) || "U"}
               </span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{userData?.nama}</p>
               <p className="text-xs text-slate-500">
-                {userRole === 'admin' ? '👑 Administrator' : 
-                 userRole === 'pengurus' ? '📋 Pengurus' : '👤 Anggota'}
+                {userRole === "admin"
+                  ? "Administrator"
+                  : userRole === "pengurus"
+                    ? "Pengurus"
+                    : "Anggota"}
               </p>
-              <p className="text-xs text-slate-400 truncate">{userData?.nomor_anggota}</p>
+              <p className="text-xs text-slate-400 truncate">
+                {userData?.nomor_anggota}
+              </p>
             </div>
           </div>
         </div>
@@ -263,58 +307,70 @@ export default function DashboardLayout({
           {filteredMenu.map((item) => (
             <div key={item.title}>
               {item.submenu ? (
-                // Menu dengan submenu
                 <div>
                   <button
                     onClick={() => toggleSubmenu(item.title)}
                     className={`
                       w-full flex items-center justify-between px-4 py-2 text-sm rounded-lg
-                      ${openSubmenu === item.title ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:bg-slate-100'}
+                      ${openSubmenu === item.title ? "bg-blue-50 text-blue-600" : "text-slate-600 hover:bg-slate-100"}
                     `}
                   >
                     <span className="flex items-center gap-3">
                       {item.icon}
                       {item.title}
                     </span>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${
-                      openSubmenu === item.title ? 'rotate-180' : ''
-                    }`} />
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform ${
+                        openSubmenu === item.title ? "rotate-180" : ""
+                      }`}
+                    />
                   </button>
-                  
+
                   {/* Submenu */}
-                  {openSubmenu === item.title && (
-                    <div className="ml-8 mt-1 space-y-1">
-                      {item.submenu
-                        .filter(sub => sub.roles.includes(userRole))
-                        .map((sub) => (
-                          <Link
-                            key={sub.href}
-                            href={sub.href}
-                            onClick={() => setSidebarOpen(false)}
-                            className={`
-                              flex items-center gap-3 px-4 py-2 text-sm rounded-lg
-                              ${pathname === sub.href 
-                                ? 'bg-blue-50 text-blue-600' 
-                                : 'text-slate-600 hover:bg-slate-100'}
-                            `}
-                          >
-                            {sub.icon}
-                            {sub.title}
-                          </Link>
-                        ))}
-                    </div>
-                  )}
+                  <AnimatePresence>
+                    {openSubmenu === item.title && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="ml-8 mt-1 space-y-1 overflow-hidden"
+                      >
+                        {item.submenu
+                          .filter((sub) => sub.roles.includes(userRole))
+                          .map((sub) => (
+                            <Link
+                              key={sub.href}
+                              href={sub.href}
+                              onClick={() => setSidebarOpen(false)}
+                              className={`
+                                flex items-center gap-3 px-4 py-2 text-sm rounded-lg
+                                ${
+                                  pathname === sub.href
+                                    ? "bg-blue-50 text-blue-600"
+                                    : "text-slate-600 hover:bg-slate-100"
+                                }
+                              `}
+                            >
+                              {sub.icon}
+                              {sub.title}
+                            </Link>
+                          ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ) : (
-                // Menu biasa
                 <Link
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
                   className={`
                     flex items-center gap-3 px-4 py-2 text-sm rounded-lg
-                    ${pathname === item.href 
-                      ? 'bg-blue-50 text-blue-600' 
-                      : 'text-slate-600 hover:bg-slate-100'}
+                    ${
+                      pathname === item.href
+                        ? "bg-blue-50 text-blue-600"
+                        : "text-slate-600 hover:bg-slate-100"
+                    }
                   `}
                 >
                   {item.icon}
@@ -336,24 +392,25 @@ export default function DashboardLayout({
             Logout
           </Button>
         </div>
-      </aside>
+      </motion.aside>
 
       {/* Main Content */}
-      <main className={`
-        transition-all duration-300
-        lg:ml-64 p-8
-        ${sidebarOpen ? 'ml-64' : 'ml-0'}
-      `}>
+      <main className="transition-all duration-300 lg:ml-64 p-8">
         {children}
       </main>
 
       {/* Overlay for mobile */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {sidebarOpen && !isDesktop && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.2 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black z-30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
-  )
+  );
 }
