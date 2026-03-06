@@ -16,7 +16,7 @@ import {
   Shield,
   Zap,
   Award,
-  ChartLine,
+  BarChart3,
   Download,
   Github,
   Twitter,

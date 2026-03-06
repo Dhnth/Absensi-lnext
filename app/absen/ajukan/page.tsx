@@ -139,7 +139,7 @@ export default function AjukanAbsenPage() {
       const { data: absenHariIni } = await supabase
         .from('absensi')
         .select('*')
-        .eq('anggota_id', userData.id)
+        .eq('anggota_id', userData?.id)
         .eq('tanggal', today)
         .maybeSingle()
 
@@ -158,7 +158,7 @@ export default function AjukanAbsenPage() {
 
       // HITUNG POIN
       const poin = 5 // Izin/Sakit = 5 poin
-      let streakBaru = (userData.streak || 0) + 1
+      let streakBaru = (userData?.streak || 0) + 1
 
       // Cek kemarin
       const kemarin = format(new Date(Date.now() - 86400000), 'yyyy-MM-dd')
@@ -173,7 +173,7 @@ export default function AjukanAbsenPage() {
       const { data: absenKemarin } = await supabase
         .from('absensi')
         .select('*')
-        .eq('anggota_id', userData.id)
+        .eq('anggota_id', userData?.id)
         .eq('tanggal', kemarin)
         .maybeSingle()
 
@@ -182,12 +182,12 @@ export default function AjukanAbsenPage() {
           streakBaru = 1 // Reset streak
         }
       } else {
-        streakBaru = userData.streak || 0 // Streak tetap
+        streakBaru = userData?.streak || 0 // Streak tetap
       }
 
       // INSERT ABSENSI
       const { error: insertError } = await supabase.from('absensi').insert({
-        anggota_id: userData.id,
+        anggota_id: userData?.id,
         tanggal: today,
         status: jenis,
         poin: poin,
@@ -200,7 +200,7 @@ export default function AjukanAbsenPage() {
       const { data: semuaAbsensi } = await supabase
         .from('absensi')
         .select('poin')
-        .eq('anggota_id', userData.id)
+        .eq('anggota_id', userData?.id)
 
       const totalPoinBaru = semuaAbsensi?.reduce((sum, a) => sum + a.poin, 0) || 0
 
@@ -212,7 +212,7 @@ export default function AjukanAbsenPage() {
           streak: streakBaru,
           last_absen: today,
         })
-        .eq('id', userData.id)
+        .eq('id', userData?.id)
 
       if (updateError) throw updateError
 
