@@ -396,7 +396,7 @@ export default function PengaturanAbsenPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteClick(item.id, item.tanggal, item.keterangan)}
+                          onClick={() => handleDeleteClick(item.id, item.tanggal, item.keterangan || '')}
                           className="h-8 px-2"
                         >
                           <Trash2 className="w-4 h-4 text-red-500" />
@@ -455,7 +455,7 @@ export default function PengaturanAbsenPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteClick(item.id, item.tanggal, item.keterangan)}
+                        onClick={() => handleDeleteClick(item.id, item.tanggal, item.keterangan || '')}
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
