@@ -70,6 +70,8 @@ export default function DaftarAnggotaPage() {
   // Pesan
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
+  const router = useRouter() // <-- TAMBAHKAN INI!
+  
   // Cek role user
   useEffect(() => {
     const checkRole = async () => {
