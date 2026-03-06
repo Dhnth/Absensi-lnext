@@ -64,10 +64,10 @@ export default function LandingPage() {
   }, [router])
 
   const stats = [
-    { label: 'Anggota Aktif', value: '500+', icon: <Users /> },
-    { label: 'Total Absensi', value: '10K+', icon: <ChartLine /> },
-    { label: 'Poin Dibagikan', value: '50K+', icon: <Trophy /> },
-    { label: 'Komunitas', value: '25+', icon: <Handshake /> },
+    { label: 'Anggota Aktif', value: '500+', icon: Users },
+    { label: 'Total Absensi', value: '10K+', icon: BarChart3 },
+    { label: 'Poin Dibagikan', value: '50K+', icon: Trophy },
+    { label: 'Komunitas', value: '25+', icon: Handshake },
   ]
 
   const features = [
@@ -415,23 +415,26 @@ export default function LandingPage() {
             transition={{ delay: 0.6 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20"
           >
-            {stats.map((stat, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ scale: 1.05 }}
-                className="text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all"
-              >
-                <div className="flex justify-center mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center text-blue-600">
-                    {stat.icon}
+            {stats.map((stat, i) => {
+              const IconComponent = stat.icon
+              return (
+                <motion.div
+                  key={i}
+                  whileHover={{ scale: 1.05 }}
+                  className="text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                >
+                  <div className="flex justify-center mb-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center text-blue-600">
+                      <IconComponent className="w-6 h-6" />
+                    </div>
                   </div>
-                </div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-slate-600">{stat.label}</div>
-              </motion.div>
-            ))}
+                  <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    {stat.value}
+                  </div>
+                  <div className="text-sm text-slate-600">{stat.label}</div>
+                </motion.div>
+              )
+            })}
           </motion.div>
         </motion.div>
       </section>
