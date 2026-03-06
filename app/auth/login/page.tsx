@@ -49,12 +49,6 @@ export default function LoginPage() {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: formData.email,
       password: formData.password,
-      options: {
-        // Ini yang mengatur remember me
-        // Kalau true: session panjang (30 hari)
-        // Kalau false: session sampai browser ditutup
-        shouldCreateUser: false,
-      },
     });
 
     if (error) {
