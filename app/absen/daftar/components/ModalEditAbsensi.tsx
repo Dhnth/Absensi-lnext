@@ -35,6 +35,20 @@ interface ModalEditAbsensiProps {
   loading?: boolean
 }
 
+// ========== DEFINE UNION TYPE ==========
+type StatusType = 'hadir' | 'izin' | 'sakit' | 'alpha'
+
+interface StatusOption {
+  value: StatusType
+  label: string
+  icon: JSX.Element
+  bgColor: string
+  borderColor: string
+  activeColor: string
+  textColor: string
+}
+// =======================================
+
 export default function ModalEditAbsensi({
   open,
   onOpenChange,
@@ -43,7 +57,7 @@ export default function ModalEditAbsensi({
   onSave,
   loading = false,
 }: ModalEditAbsensiProps) {
-  const [status, setStatus] = useState(data?.status || 'alpha')
+  const [status, setStatus] = useState<StatusType>(data?.status as StatusType || 'alpha')
   const [keterangan, setKeterangan] = useState(data?.absensi?.keterangan || '')
 
   const [error, setError] = useState('')
@@ -62,7 +76,7 @@ export default function ModalEditAbsensi({
     await onSave(status, keterangan)
   }
 
-  const statusOptions = [
+  const statusOptions: StatusOption[] = [
     {
       value: 'hadir',
       label: 'Hadir',
