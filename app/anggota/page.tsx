@@ -40,6 +40,8 @@ const ModalPassword = dynamic(() => import("./components/ModalPassword").then(mo
 })
 
 export default function DaftarAnggotaPage() {
+  const router = useRouter() // ← PINDAHKAN KE SINI (PALING ATAS)
+  
   // Data
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<Anggota[]>([])
@@ -51,7 +53,9 @@ export default function DaftarAnggotaPage() {
   const [filterRole, setFilterRole] = useState("semua")
   const [filterStatus, setFilterStatus] = useState("semua")
   const [filterKelas, setFilterKelas] = useState("semua")
-  const [setKelasList] = useState<string[]>([])
+  // ========== PERBAIKAN 1: Tambah state kelasList ==========
+  const [kelasList, setKelasList] = useState<string[]>([])  // ← BENAR
+  // =========================================================
   
   // Modal state
   const [selectedAnggota, setSelectedAnggota] = useState<Anggota | null>(null)
@@ -70,8 +74,6 @@ export default function DaftarAnggotaPage() {
   // Pesan
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
-  const router = useRouter() // <-- TAMBAHKAN INI!
-  
   // Cek role user
   useEffect(() => {
     const checkRole = async () => {
@@ -93,7 +95,7 @@ export default function DaftarAnggotaPage() {
     }
 
     checkRole()
-  }, [])
+  }, [router]) // ← Tambah dependency router
 
   // Load data
   useEffect(() => {
@@ -118,7 +120,7 @@ export default function DaftarAnggotaPage() {
     setData(anggota || [])
     
     const kelas = [...new Set(anggota?.map(a => a.kelas).filter(Boolean))] as string[]
-    setKelasList(kelas.sort())
+    setKelasList(kelas.sort())  // ← Sekarang bisa dipanggil
     setLoading(false)
   }
 
@@ -163,93 +165,90 @@ export default function DaftarAnggotaPage() {
 
   // ========== HANDLERS ==========
   const handleAktifkan = async () => {
-  if (!selectedAnggota) return
+    if (!selectedAnggota) return
 
-  setLoading(true)
-  const supabase = createClient()
+    setLoading(true)
+    const supabase = createClient()
 
-  try {
-    const { error } = await supabase
-      .from('anggota')
-      .update({ is_active: true })
-      .eq('id', selectedAnggota.id)
+    try {
+      const { error } = await supabase
+        .from('anggota')
+        .update({ is_active: true })
+        .eq('id', selectedAnggota.id)
 
-    if (error) throw error
+      if (error) throw error
 
-
-    setMessage({ type: 'success', text: 'Anggota berhasil diaktifkan' })
-    loadData()
-  } catch (error: any) {
-    setMessage({ type: 'error', text: error.message || 'Gagal mengaktifkan anggota' })
-  } finally {
-    setLoading(false)
-    setShowKonfirmasi(false)
-    setSelectedAnggota(null)
-    setTimeout(() => setMessage(null), 3000)
+      setMessage({ type: 'success', text: 'Anggota berhasil diaktifkan' })
+      loadData()
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Gagal mengaktifkan anggota' })
+    } finally {
+      setLoading(false)
+      setShowKonfirmasi(false)
+      setSelectedAnggota(null)
+      setTimeout(() => setMessage(null), 3000)
+    }
   }
-}
 
   const handleNonaktifkan = async () => {
-  if (!selectedAnggota) return
+    if (!selectedAnggota) return
 
-  setLoading(true)
-  const supabase = createClient()
+    setLoading(true)
+    const supabase = createClient()
 
-  try {
-    const { error } = await supabase
-      .from('anggota')
-      .update({ is_active: false })
-      .eq('id', selectedAnggota.id)
+    try {
+      const { error } = await supabase
+        .from('anggota')
+        .update({ is_active: false })
+        .eq('id', selectedAnggota.id)
 
-    if (error) throw error
+      if (error) throw error
 
-
-    setMessage({ type: 'success', text: 'Anggota berhasil dinonaktifkan' })
-    loadData()
-  } catch (error: any) {
-    setMessage({ type: 'error', text: error.message || 'Gagal menonaktifkan anggota' })
-  } finally {
-    setLoading(false)
-    setShowKonfirmasi(false)
-    setSelectedAnggota(null)
-    setTimeout(() => setMessage(null), 3000)
+      setMessage({ type: 'success', text: 'Anggota berhasil dinonaktifkan' })
+      loadData()
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Gagal menonaktifkan anggota' })
+    } finally {
+      setLoading(false)
+      setShowKonfirmasi(false)
+      setSelectedAnggota(null)
+      setTimeout(() => setMessage(null), 3000)
+    }
   }
-}
 
   const handleHapusPermanen = async () => {
-  if (!selectedAnggota) return
+    if (!selectedAnggota) return
 
-  setLoading(true)
-  const supabase = createClient()
+    setLoading(true)
+    const supabase = createClient()
 
-  try {
-    // Kembalikan nomor ke stok
-    await supabase
-      .from('stok_nomor_anggota')
-      .update({ status: 'tersedia' })
-      .eq('nomor_anggota', selectedAnggota.nomor_anggota)
+    try {
+      // Kembalikan nomor ke stok
+      await supabase
+        .from('stok_nomor_anggota')
+        .update({ status: 'tersedia' })
+        .eq('nomor_anggota', selectedAnggota.nomor_anggota)
 
+      // Hapus anggota
+      const { error } = await supabase
+        .from('anggota')
+        .delete()
+        .eq('id', selectedAnggota.id)
 
-    // Hapus anggota
-    const { error } = await supabase
-      .from('anggota')
-      .delete()
-      .eq('id', selectedAnggota.id)
+      if (error) throw error
 
-    if (error) throw error
-
-    setMessage({ type: 'success', text: 'Anggota berhasil dihapus permanen' })
-    loadData()
-    loadStokNomor()
-  } catch (error: any) {
-    setMessage({ type: 'error', text: error.message || 'Gagal menghapus anggota' })
-  } finally {
-    setLoading(false)
-    setShowKonfirmasi(false)
-    setSelectedAnggota(null)
-    setTimeout(() => setMessage(null), 3000)
+      setMessage({ type: 'success', text: 'Anggota berhasil dihapus permanen' })
+      loadData()
+      loadStokNomor()
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Gagal menghapus anggota' })
+    } finally {
+      setLoading(false)
+      setShowKonfirmasi(false)
+      setSelectedAnggota(null)
+      setTimeout(() => setMessage(null), 3000)
+    }
   }
-}
 
   // ========== RENDER ==========
   const filteredData = filterData()
