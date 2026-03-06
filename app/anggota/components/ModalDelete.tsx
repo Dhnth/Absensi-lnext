@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { Anggota } from "../types";
+import { Anggota } from "./types";
 
 interface ModalDeleteProps {
   open: boolean;

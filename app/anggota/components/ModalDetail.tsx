@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Award, Zap, Calendar, UserCheck, UserX } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale/id";
-import { Anggota } from "../types";
+import { Anggota } from "./types";
 
 interface ModalDetailProps {
   open: boolean;

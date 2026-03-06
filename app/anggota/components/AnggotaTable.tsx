@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Users, Loader2 } from "lucide-react"
 import { AnggotaRow } from "./AnggotaRow"
-import { Anggota } from "../types"
+import { Anggota } from "./types"
 
 interface AnggotaTableProps {
   data: Anggota[]

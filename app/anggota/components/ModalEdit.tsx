@@ -23,7 +23,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import bcrypt from "bcryptjs";
-import { Anggota } from "../types";
+import { Anggota } from "./types";
 
 interface ModalEditProps {
   open: boolean;

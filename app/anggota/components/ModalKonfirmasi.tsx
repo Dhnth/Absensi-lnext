@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, RotateCcw, Trash2, UserX, Loader2 } from "lucide-react"
-import { Anggota } from "../types"
+import { Anggota } from "./types"
 
 interface ModalKonfirmasiProps {
   open: boolean
