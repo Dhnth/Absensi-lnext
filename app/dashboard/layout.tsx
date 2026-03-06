@@ -228,15 +228,10 @@ const menuItems: MenuItem[] = [
     setOpenSubmenu(openSubmenu === title ? null : title);
   };
 
+// Menjadi:
 const sidebarVariants = {
-  open: { 
-    x: 0,
-    transition: { duration: 0.3, ease: "easeInOut" }
-  },
-  closed: { 
-    x: "-100%",
-    transition: { duration: 0.3, ease: "easeInOut" }
-  },
+  open: { x: 0 },
+  closed: { x: "-100%" },
 };
 
   if (loading) {
