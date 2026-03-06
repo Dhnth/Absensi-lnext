@@ -24,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Anggota } from "../types"
+import { Anggota } from "./types"
 
 interface AnggotaRowProps {
   anggota: Anggota
