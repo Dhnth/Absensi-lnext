@@ -41,7 +41,7 @@ type StatusType = 'hadir' | 'izin' | 'sakit' | 'alpha'
 interface StatusOption {
   value: StatusType
   label: string
-  icon: JSX.Element
+  icon: React.ReactNode
   bgColor: string
   borderColor: string
   activeColor: string
