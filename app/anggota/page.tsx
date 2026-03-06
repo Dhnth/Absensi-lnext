@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
+import { useRouter } from "next/router"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
