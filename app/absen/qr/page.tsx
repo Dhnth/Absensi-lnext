@@ -26,17 +26,24 @@ export default function ScanQrPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [scanning, setScanning] = useState(false)
-  const [processing, setProcessing] = useState(false) // State untuk proses absen
+  const [processing, setProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  // ========== PERBAIKAN: Tambah properti kelas dan role ==========
   interface ScanResult {
     id: number
     nama: string
     nomor_anggota: string
+    poin: number
     poinDidapat: number
     streakBaru: number
     bonus: boolean
+    kelas?: string | null
+    role?: string
   }
+  // =============================================================
+
   const [lastResult, setLastResult] = useState<ScanResult | null>(null)
 
   const scannerRef = useRef<Html5Qrcode | null>(null)
@@ -46,7 +53,6 @@ export default function ScanQrPage() {
     setScanning(true)
     setProcessing(false)
 
-    // Tunggu DOM siap
     setTimeout(async () => {
       try {
         const readerElement = document.getElementById('qr-reader')
@@ -57,22 +63,15 @@ export default function ScanQrPage() {
           return
         }
 
-        // Kosongkan element
         readerElement.innerHTML = ''
 
-        // Buat scanner baru
         const html5Qrcode = new Html5Qrcode('qr-reader')
         scannerRef.current = html5Qrcode
 
         const qrCodeSuccessCallback = (decodedText: string) => {
-          // Getar kalau di HP
           if (navigator.vibrate) navigator.vibrate(200)
-
-          // MATIKAN KAMERA & TAMPILKAN LOADING
           stopScanner()
           setProcessing(true)
-
-          // Proses scan
           handleScan(decodedText)
         }
 
@@ -82,14 +81,11 @@ export default function ScanQrPage() {
           aspectRatio: 1.0,
         }
 
-        // Mulai scanner
         await html5Qrcode.start(
           { facingMode: 'environment' },
           config,
           qrCodeSuccessCallback,
-          (errorMessage) => {
-            // Abaikan error scanning biasa
-          }
+          () => {}
         )
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -124,7 +120,6 @@ export default function ScanQrPage() {
   }
 
   const handleScan = async (decodedText: string) => {
-    // Cegah double submit
     if (loading) return
 
     const nomorAnggota = decodedText.trim()
@@ -134,12 +129,7 @@ export default function ScanQrPage() {
     const supabase = createClient()
     const today = format(new Date(), 'yyyy-MM-dd')
 
-    console.log('========== DEBUG ABSEN QR ==========')
-    console.log('1. Today (format date-fns):', today)
-    console.log('2. Nomor anggota dari QR:', nomorAnggota)
-
     try {
-      // CEK LIBUR
       const { data: pengaturan } = await supabase
         .from('pengaturan_absen')
         .select('*')
@@ -153,7 +143,6 @@ export default function ScanQrPage() {
         return
       }
 
-      // CEK ANGGOTA
       const { data: anggota, error: cekError } = await supabase
         .from('anggota')
         .select('*')
@@ -174,7 +163,6 @@ export default function ScanQrPage() {
         return
       }
 
-      // CEK ABSEN HARI INI
       const { data: absenHariIni } = await supabase
         .from('absensi')
         .select('*')
@@ -186,16 +174,12 @@ export default function ScanQrPage() {
         setError(`Sudah absen hari ini dengan status: ${absenHariIni.status}`)
         setLoading(false)
         setProcessing(false)
-
-        // ========== TAMBAHKAN INI ==========
         setTimeout(() => {
           startScanner()
         }, 500)
-        // =================================
         return
       }
 
-      // HITUNG POIN DAN STREAK
       const poinHadir = 10
       let streakBaru = (anggota.streak || 0) + 1
 
@@ -225,7 +209,6 @@ export default function ScanQrPage() {
 
       const bonusStreak = streakBaru % 7 === 0 ? 5 : 0
 
-      // INSERT ABSENSI
       const insertData = {
         anggota_id: anggota.id,
         tanggal: today,
@@ -247,7 +230,6 @@ export default function ScanQrPage() {
         return
       }
 
-      // HITUNG ULANG TOTAL POIN DARI SEMUA ABSENSI
       const { data: semuaAbsensi } = await supabase
         .from('absensi')
         .select('poin')
@@ -255,7 +237,6 @@ export default function ScanQrPage() {
 
       const totalPoinBaru = semuaAbsensi?.reduce((sum, a) => sum + a.poin, 0) || 0
 
-      // UPDATE ANGGOTA
       const { error: updateError } = await supabase
         .from('anggota')
         .update({
@@ -267,20 +248,21 @@ export default function ScanQrPage() {
 
       if (updateError) throw updateError
 
+      // ========== PERBAIKAN: Spread anggota yang sudah termasuk kelas dan role ==========
       setLastResult({
         ...anggota,
         poinDidapat: poinHadir + bonusStreak,
         streakBaru,
         bonus: bonusStreak > 0,
       })
+      // ============================================================================
+
       setSuccess(true)
       setProcessing(false)
 
-      // ========== TAMBAHKAN INI ==========
       setTimeout(() => {
         startScanner()
-      }, 500) // Delay 0.5 detik
-      // =================================
+      }, 500)
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
@@ -340,7 +322,6 @@ export default function ScanQrPage() {
               </div>
             ) : scanning ? (
               <div>
-                {/* Mirror effect untuk video */}
                 <style jsx global>{`
                   #qr-reader video {
                     transform: scaleX(-1) !important;
@@ -395,7 +376,6 @@ export default function ScanQrPage() {
               </div>
             ) : success && lastResult ? (
               <div className="space-y-6">
-                {/* Alert Sukses */}
                 <Alert className="bg-green-50 border-green-200">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-700">
@@ -403,7 +383,6 @@ export default function ScanQrPage() {
                   </AlertDescription>
                 </Alert>
 
-                {/* Kartu Identitas Anggota */}
                 <div className="bg-white border rounded-lg p-4 space-y-3">
                   <h3 className="text-sm font-medium text-slate-500 flex items-center gap-2">
                     <User className="w-4 h-4" />
@@ -425,12 +404,11 @@ export default function ScanQrPage() {
                     </div>
                     <div className="bg-slate-50 p-3 rounded-lg">
                       <p className="text-xs text-slate-500">Role</p>
-                      <p className="font-medium capitalize">{lastResult.role}</p>
+                      <p className="font-medium capitalize">{lastResult.role || 'anggota'}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Kartu Detail Absensi */}
                 <div className="bg-white border rounded-lg p-4 space-y-3">
                   <h3 className="text-sm font-medium text-slate-500 flex items-center gap-2">
                     <Award className="w-4 h-4" />
@@ -492,7 +470,6 @@ export default function ScanQrPage() {
                   </div>
                 </div>
 
-                {/* Kartu Total Poin */}
                 <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-4 text-white">
                   <div className="flex items-center justify-between">
                     <div>
@@ -508,7 +485,6 @@ export default function ScanQrPage() {
                   </p>
                 </div>
 
-                {/* Tombol Aksi */}
                 <div className="flex gap-2">
                   <Button onClick={handleScanLagi} variant="default" className="flex-1 gap-2">
                     <Camera className="w-4 h-4" />
