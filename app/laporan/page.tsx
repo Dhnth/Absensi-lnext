@@ -20,20 +20,19 @@ export default function LaporanPage() {
   const [loading, setLoading] = useState(true)
   const [exportLoading, setExportLoading] = useState(false)
   const [data, setData] = useState<RekapAnggota[]>([])
-  interface RekapData {
-    // definisikan sesuai struktur data
-    anggota_id: number
+  interface DetailAbsensi {
     nomor_anggota: string
     nama: string
-    kelas: string | null
-    total_hadir: number
-    total_izin: number
-    total_sakit: number
-    total_alpha: number
-    total_absen: number
-    total_poin: number
+    kelas: string
+    status: string
+    poin: number
   }
-  const [detailData, setDetailData] = useState<RekapData[]>([])
+
+  interface DetailTanggal {
+    tanggal: string
+    data: DetailAbsensi[]
+  }
+  const [detailData, setDetailData] = useState<DetailTanggal[]>([])
   const [statistik, setStatistik] = useState<StatistikLaporan>({
     total_anggota: 0,
     total_hadir: 0,
@@ -105,9 +104,9 @@ export default function LaporanPage() {
           absensiPerTanggal.set(item.tanggal, [])
         }
         absensiPerTanggal.get(item.tanggal).push({
-          nomor_anggota: item.anggota?.nomor_anggota,
-          nama: item.anggota?.nama,
-          kelas: item.anggota?.kelas,
+          nomor_anggota: item.anggota?.nomor_anggota || '',
+          nama: item.anggota?.nama || '',
+          kelas: item.anggota?.kelas || '',
           status: item.status,
           poin: item.poin,
         })
