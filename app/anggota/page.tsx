@@ -51,7 +51,7 @@ export default function DaftarAnggotaPage() {
   const [filterRole, setFilterRole] = useState("semua")
   const [filterStatus, setFilterStatus] = useState("semua")
   const [filterKelas, setFilterKelas] = useState("semua")
-  const [kelasList, setKelasList] = useState<string[]>([])
+  const [setKelasList] = useState<string[]>([])
   
   // Modal state
   const [selectedAnggota, setSelectedAnggota] = useState<Anggota | null>(null)
@@ -278,7 +278,6 @@ export default function DaftarAnggotaPage() {
         onStatusChange={setFilterStatus}
         filterKelas={filterKelas}
         onKelasChange={setFilterKelas}
-        kelasList={kelasList}
         totalData={data.length}
         filteredCount={filteredData.length}
         onRefresh={loadData}
