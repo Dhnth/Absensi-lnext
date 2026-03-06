@@ -1,13 +1,20 @@
-"use client"
+'use client'
 
-import { useState, useMemo, memo, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Search, ChevronLeft, ChevronRight, Users, Loader2 } from "lucide-react"
-import { RekapAnggota } from "./types"
+import { useState, useMemo, memo, useRef, useEffect } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Search, ChevronLeft, ChevronRight, Users, Loader2 } from 'lucide-react'
+import { RekapAnggota } from './types'
 
 interface TabelRekapProps {
   data: RekapAnggota[]
@@ -15,22 +22,24 @@ interface TabelRekapProps {
   itemsPerPage?: number
 }
 
-export const TabelRekap = memo(function TabelRekap({ 
-  data, 
+export const TabelRekap = memo(function TabelRekap({
+  data,
   loading,
-  itemsPerPage = 10 
+  itemsPerPage = 10,
 }: TabelRekapProps) {
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const prevDataLengthRef = useRef(data.length)
 
   // Filter data
   const filteredData = useMemo(() => {
     if (!searchTerm) return data
     const term = searchTerm.toLowerCase()
-    return data.filter(item =>
-      item.nomor_anggota.toLowerCase().includes(term) ||
-      item.nama.toLowerCase().includes(term) ||
-      item.kelas?.toLowerCase().includes(term)
+    return data.filter(
+      (item) =>
+        item.nomor_anggota.toLowerCase().includes(term) ||
+        item.nama.toLowerCase().includes(term) ||
+        item.kelas?.toLowerCase().includes(term)
     )
   }, [data, searchTerm])
 
@@ -41,9 +50,12 @@ export const TabelRekap = memo(function TabelRekap({
     return filteredData.slice(start, start + itemsPerPage)
   }, [filteredData, currentPage, itemsPerPage])
 
-  // Reset page when filter changes
+  // Reset page when filter changes - dengan useRef untuk menghindari warning
   useEffect(() => {
-    setCurrentPage(1)
+    if (prevDataLengthRef.current !== filteredData.length) {
+      setCurrentPage(1)
+      prevDataLengthRef.current = filteredData.length
+    }
   }, [filteredData])
 
   if (loading) {
@@ -135,7 +147,7 @@ export const TabelRekap = memo(function TabelRekap({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -143,7 +155,7 @@ export const TabelRekap = memo(function TabelRekap({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
               >
                 <ChevronRight className="w-4 h-4" />
@@ -155,3 +167,5 @@ export const TabelRekap = memo(function TabelRekap({
     </Card>
   )
 })
+
+TabelRekap.displayName = 'TabelRekap'

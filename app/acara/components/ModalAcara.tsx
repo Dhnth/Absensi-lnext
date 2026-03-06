@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -8,15 +8,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle, Loader2 } from "lucide-react"
-import { Acara, AcaraFormData } from "./types"
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertCircle, Loader2 } from 'lucide-react'
+import { Acara, AcaraFormData } from './types'
 
 interface ModalAcaraProps {
   open: boolean
@@ -28,15 +34,15 @@ interface ModalAcaraProps {
 
 export default function ModalAcara({ open, onOpenChange, mode, data, onSave }: ModalAcaraProps) {
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  
+  const [error, setError] = useState('')
+
   const [formData, setFormData] = useState<AcaraFormData>({
-    judul: "",
-    deskripsi: "",
-    lokasi: "",
+    judul: '',
+    deskripsi: '',
+    lokasi: '',
     tanggal_mulai: formatDateForInput(new Date()),
     tanggal_selesai: formatDateForInput(new Date()),
-    tipe: "umum"
+    tipe: 'umum',
   })
 
   // Helper: format date untuk input datetime-local
@@ -50,30 +56,30 @@ export default function ModalAcara({ open, onOpenChange, mode, data, onSave }: M
     if (data && mode === 'edit') {
       setFormData({
         judul: data.judul,
-        deskripsi: data.deskripsi || "",
-        lokasi: data.lokasi || "",
+        deskripsi: data.deskripsi || '',
+        lokasi: data.lokasi || '',
         tanggal_mulai: formatDateForInput(new Date(data.tanggal_mulai)),
         tanggal_selesai: formatDateForInput(new Date(data.tanggal_selesai)),
-        tipe: data.tipe
+        tipe: data.tipe,
       })
     } else {
       setFormData({
-        judul: "",
-        deskripsi: "",
-        lokasi: "",
+        judul: '',
+        deskripsi: '',
+        lokasi: '',
         tanggal_mulai: formatDateForInput(new Date()),
         tanggal_selesai: formatDateForInput(new Date()),
-        tipe: "umum"
+        tipe: 'umum',
       })
     }
-    setError("")
+    setError('')
   }, [data, mode, open])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!formData.judul.trim()) {
-      setError("Judul acara wajib diisi")
+      setError('Judul acara wajib diisi')
       return
     }
 
@@ -81,18 +87,23 @@ export default function ModalAcara({ open, onOpenChange, mode, data, onSave }: M
     const selesai = new Date(formData.tanggal_selesai)
 
     if (selesai < mulai) {
-      setError("Tanggal selesai tidak boleh lebih awal dari tanggal mulai")
+      setError('Tanggal selesai tidak boleh lebih awal dari tanggal mulai')
       return
     }
 
     setLoading(true)
-    setError("")
-    
+    setError('')
+
     try {
       await onSave(formData, data?.id)
       onOpenChange(false)
-    } catch (err: any) {
-      setError(err.message || "Gagal menyimpan acara")
+      // baris 94 - SESUDAH
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Gagal menyimpan acara')
+      }
     } finally {
       setLoading(false)
     }
@@ -102,12 +113,10 @@ export default function ModalAcara({ open, onOpenChange, mode, data, onSave }: M
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>
-            {mode === 'tambah' ? 'Buat Acara Baru' : 'Edit Acara'}
-          </DialogTitle>
+          <DialogTitle>{mode === 'tambah' ? 'Buat Acara Baru' : 'Edit Acara'}</DialogTitle>
           <DialogDescription>
-            {mode === 'tambah' 
-              ? 'Tambahkan acara baru ke kalender' 
+            {mode === 'tambah'
+              ? 'Tambahkan acara baru ke kalender'
               : 'Ubah detail acara yang sudah ada'}
           </DialogDescription>
         </DialogHeader>
@@ -122,11 +131,13 @@ export default function ModalAcara({ open, onOpenChange, mode, data, onSave }: M
 
           {/* Judul */}
           <div className="space-y-2">
-            <Label htmlFor="judul">Judul Acara <span className="text-red-500">*</span></Label>
+            <Label htmlFor="judul">
+              Judul Acara <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="judul"
               value={formData.judul}
-              onChange={(e) => setFormData({...formData, judul: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, judul: e.target.value })}
               placeholder="Contoh: Rapat Bulanan"
               required
             />
@@ -135,9 +146,11 @@ export default function ModalAcara({ open, onOpenChange, mode, data, onSave }: M
           {/* Tipe */}
           <div className="space-y-2">
             <Label htmlFor="tipe">Tipe Acara</Label>
-            <Select 
-              value={formData.tipe} 
-              onValueChange={(value: any) => setFormData({...formData, tipe: value})}
+            <Select
+              value={formData.tipe}
+              onValueChange={(value: string) =>
+                setFormData({ ...formData, tipe: value as 'umum' | 'rapat' | 'kegiatan' | 'libur' })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Pilih tipe" />
@@ -158,7 +171,7 @@ export default function ModalAcara({ open, onOpenChange, mode, data, onSave }: M
               id="tanggal_mulai"
               type="datetime-local"
               value={formData.tanggal_mulai}
-              onChange={(e) => setFormData({...formData, tanggal_mulai: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, tanggal_mulai: e.target.value })}
               required
             />
           </div>
@@ -170,7 +183,7 @@ export default function ModalAcara({ open, onOpenChange, mode, data, onSave }: M
               id="tanggal_selesai"
               type="datetime-local"
               value={formData.tanggal_selesai}
-              onChange={(e) => setFormData({...formData, tanggal_selesai: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, tanggal_selesai: e.target.value })}
               required
             />
           </div>
@@ -181,7 +194,7 @@ export default function ModalAcara({ open, onOpenChange, mode, data, onSave }: M
             <Input
               id="lokasi"
               value={formData.lokasi}
-              onChange={(e) => setFormData({...formData, lokasi: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, lokasi: e.target.value })}
               placeholder="Contoh: Ruang A, Online, dll"
             />
           </div>
@@ -192,7 +205,7 @@ export default function ModalAcara({ open, onOpenChange, mode, data, onSave }: M
             <Textarea
               id="deskripsi"
               value={formData.deskripsi}
-              onChange={(e) => setFormData({...formData, deskripsi: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
               placeholder="Detail acara..."
               rows={3}
             />
@@ -208,7 +221,9 @@ export default function ModalAcara({ open, onOpenChange, mode, data, onSave }: M
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Menyimpan...
                 </>
-              ) : 'Simpan'}
+              ) : (
+                'Simpan'
+              )}
             </Button>
           </DialogFooter>
         </form>

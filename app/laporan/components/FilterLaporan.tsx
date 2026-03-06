@@ -1,14 +1,20 @@
-"use client"
+'use client'
 
-import { memo, useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, Download, RefreshCw, FileText } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
-import { format } from "date-fns"
+import { memo, useState, useEffect } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Calendar, Download, RefreshCw, FileText } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { format } from 'date-fns'
 
 interface FilterLaporanProps {
   startDate: string
@@ -31,7 +37,7 @@ export const FilterLaporan = memo(function FilterLaporan({
   onKelasChange,
   onRefresh,
   onExport,
-  loading = false
+  loading = false,
 }: FilterLaporanProps) {
   const [kelasOptions, setKelasOptions] = useState<string[]>([])
 
@@ -39,12 +45,9 @@ export const FilterLaporan = memo(function FilterLaporan({
   useEffect(() => {
     const loadKelas = async () => {
       const supabase = createClient()
-      const { data } = await supabase
-        .from('kelas')
-        .select('nama')
-        .order('nama')
-      
-      setKelasOptions(data?.map(k => k.nama) || [])
+      const { data } = await supabase.from('kelas').select('nama').order('nama')
+
+      setKelasOptions(data?.map((k) => k.nama) || [])
     }
     loadKelas()
   }, [])
@@ -67,7 +70,9 @@ export const FilterLaporan = memo(function FilterLaporan({
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Tanggal Mulai */}
           <div className="space-y-2">
-            <Label htmlFor="startDate" className="text-sm">Tanggal Mulai</Label>
+            <Label htmlFor="startDate" className="text-sm">
+              Tanggal Mulai
+            </Label>
             <div className="relative">
               <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
               <Input
@@ -82,7 +87,9 @@ export const FilterLaporan = memo(function FilterLaporan({
 
           {/* Tanggal Selesai */}
           <div className="space-y-2">
-            <Label htmlFor="endDate" className="text-sm">Tanggal Selesai</Label>
+            <Label htmlFor="endDate" className="text-sm">
+              Tanggal Selesai
+            </Label>
             <div className="relative">
               <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
               <Input
@@ -97,7 +104,9 @@ export const FilterLaporan = memo(function FilterLaporan({
 
           {/* Filter Kelas */}
           <div className="space-y-2">
-            <Label htmlFor="kelas" className="text-sm">Kelas</Label>
+            <Label htmlFor="kelas" className="text-sm">
+              Kelas
+            </Label>
             <Select value={filterKelas} onValueChange={onKelasChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Semua Kelas" />
@@ -105,7 +114,9 @@ export const FilterLaporan = memo(function FilterLaporan({
               <SelectContent>
                 <SelectItem value="semua">Semua Kelas</SelectItem>
                 {kelasOptions.map((kelas) => (
-                  <SelectItem key={kelas} value={kelas}>{kelas}</SelectItem>
+                  <SelectItem key={kelas} value={kelas}>
+                    {kelas}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -115,20 +126,11 @@ export const FilterLaporan = memo(function FilterLaporan({
           <div className="space-y-2">
             <Label className="text-sm invisible">Aksi</Label>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={onRefresh}
-                disabled={loading}
-                className="flex-1"
-              >
+              <Button variant="outline" onClick={onRefresh} disabled={loading} className="flex-1">
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              <Button
-                onClick={onExport}
-                disabled={loading}
-                className="flex-1"
-              >
+              <Button onClick={onExport} disabled={loading} className="flex-1">
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>

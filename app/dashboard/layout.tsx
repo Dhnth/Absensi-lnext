@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+import { Button } from '@/components/ui/button'
 import {
   Home,
   Users,
@@ -30,220 +30,220 @@ import {
   CalendarDays,
   UserCog,
   HelpCircle,
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+} from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
-type UserRole = "admin" | "pengurus" | "anggota";
+type UserRole = 'admin' | 'pengurus' | 'anggota'
 
 interface MenuItem {
-  title: string;
-  href: string;
-  icon: React.ReactNode;
-  roles: UserRole[];
-  submenu?: MenuItem[];
+  title: string
+  href: string
+  icon: React.ReactNode
+  roles: UserRole[]
+  submenu?: MenuItem[]
 }
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<UserRole>("anggota");
-  const [userData, setUserData] = useState<any>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
-  const [isDesktop, setIsDesktop] = useState(false);
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const [loading, setLoading] = useState(true)
+  const [userRole, setUserRole] = useState<UserRole>('anggota')
+  interface UserData {
+    id: number
+    nama: string
+    nomor_anggota: string
+    email: string
+    role: string
+  }
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
+  const [isDesktop, setIsDesktop] = useState(false)
 
   // Cek ukuran layar
   useEffect(() => {
     const checkScreen = () => {
-      setIsDesktop(window.innerWidth >= 1024);
-    };
-    
-    checkScreen();
-    window.addEventListener('resize', checkScreen);
-    
-    return () => window.removeEventListener('resize', checkScreen);
-  }, []);
+      setIsDesktop(window.innerWidth >= 1024)
+    }
+
+    checkScreen()
+    window.addEventListener('resize', checkScreen)
+
+    return () => window.removeEventListener('resize', checkScreen)
+  }, [])
 
   useEffect(() => {
     const getUserData = async () => {
-      const supabase = createClient();
+      const supabase = createClient()
 
       const {
         data: { user },
-      } = await supabase.auth.getUser();
+      } = await supabase.auth.getUser()
 
       if (!user) {
-        router.push("/auth/login");
-        return;
+        router.push('/auth/login')
+        return
       }
 
       const { data: anggota } = await supabase
-        .from("anggota")
-        .select("*")
-        .eq("email", user.email)
-        .single();
+        .from('anggota')
+        .select('*')
+        .eq('email', user.email)
+        .single()
 
       if (!anggota?.nomor_anggota) {
-        router.push("/pairing");
-        return;
+        router.push('/pairing')
+        return
       }
 
-      setUserData(anggota);
-      setUserRole(anggota.role as UserRole);
-      setLoading(false);
-    };
+      setUserData(anggota)
+      setUserRole(anggota.role as UserRole)
+      setLoading(false)
+    }
 
-    getUserData();
-  }, [router]);
+    getUserData()
+  }, [router])
 
   const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
-  };
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/')
+  }
 
   // Menu items (sama seperti sebelumnya)
-const menuItems: MenuItem[] = [
+  const menuItems: MenuItem[] = [
     {
-      title: "Dashboard",
-      href: "/dashboard",
+      title: 'Dashboard',
+      href: '/dashboard',
       icon: <Home className="w-5 h-5" />,
-      roles: ["admin", "pengurus", "anggota"],
+      roles: ['admin', 'pengurus', 'anggota'],
     },
     {
-      title: "Manajemen Kelas",
-      href: "/admin/kelas",
+      title: 'Manajemen Kelas',
+      href: '/admin/kelas',
       icon: <School className="w-5 h-5" />,
-      roles: ["admin"],
+      roles: ['admin'],
     },
     {
-      title: "Absensi",
-      href: "#",
+      title: 'Absensi',
+      href: '#',
       icon: <UserRoundPen className="w-5 h-5" />,
-      roles: ["admin", "pengurus", "anggota"],
+      roles: ['admin', 'pengurus', 'anggota'],
       submenu: [
         {
-          title: "Absen QR",
-          href: "/absen/qr",
+          title: 'Absen QR',
+          href: '/absen/qr',
           icon: <ScanQrCode className="w-5 h-5" />,
-          roles: ["admin", "pengurus"],
+          roles: ['admin', 'pengurus'],
         },
         {
-          title: "QR Code Saya", // <-- UNTUK ANGGOTA
-          href: "/qr-saya",
+          title: 'QR Code Saya', // <-- UNTUK ANGGOTA
+          href: '/qr-saya',
           icon: <QrCode className="w-5 h-5" />,
-          roles: ["admin", "pengurus", "anggota"],
+          roles: ['admin', 'pengurus', 'anggota'],
         },
         {
-          title: "Absen Manual",
-          href: "/absen/manual",
+          title: 'Absen Manual',
+          href: '/absen/manual',
           icon: <ClipboardList className="w-5 h-5" />,
-          roles: ["admin", "pengurus"],
+          roles: ['admin', 'pengurus'],
         },
         {
-          title: "Daftar Absensi",
-          href: "/absen/daftar",
+          title: 'Daftar Absensi',
+          href: '/absen/daftar',
           icon: <FileText className="w-5 h-5" />,
-          roles: ["admin", "pengurus", "anggota"],
+          roles: ['admin', 'pengurus', 'anggota'],
         },
         {
-          title: "Ajukan Izin/Sakit",
-          href: "/absen/ajukan",
+          title: 'Ajukan Izin/Sakit',
+          href: '/absen/ajukan',
           icon: <FileText className="w-5 h-5" />,
-          roles: ["anggota", "pengurus", "admin"], // Semua bisa, tapi anggota yang paling sering
-        }
+          roles: ['anggota', 'pengurus', 'admin'], // Semua bisa, tapi anggota yang paling sering
+        },
       ],
     },
     {
-      title: "Manajemen Anggota",
-      href: "#",
+      title: 'Manajemen Anggota',
+      href: '#',
       icon: <Users className="w-5 h-5" />,
-      roles: ["admin", "pengurus"],
+      roles: ['admin', 'pengurus'],
       submenu: [
         {
-          title: "Daftar Anggota",
-          href: "/anggota",
+          title: 'Daftar Anggota',
+          href: '/anggota',
           icon: <Users className="w-5 h-5" />,
-          roles: ["admin", "pengurus"],
+          roles: ['admin', 'pengurus'],
         },
         {
-          title: "Stok Nomor",
-          href: "/admin/stok-nomor",
+          title: 'Stok Nomor',
+          href: '/admin/stok-nomor',
           icon: <Hash className="w-5 h-5" />,
-          roles: ["admin"],
+          roles: ['admin'],
         },
       ],
     },
     {
-      title: "Leaderboard",
-      href: "/leaderboard",
+      title: 'Leaderboard',
+      href: '/leaderboard',
       icon: <Trophy className="w-5 h-5" />,
-      roles: ["admin", "pengurus", "anggota"],
+      roles: ['admin', 'pengurus', 'anggota'],
     },
     {
-      title: "Acara",
-      href: "/acara",
+      title: 'Acara',
+      href: '/acara',
       icon: <Calendar className="w-5 h-5" />,
-      roles: ["admin", "pengurus", "anggota"],
+      roles: ['admin', 'pengurus', 'anggota'],
     },
     {
-      title: "Laporan",
-      href: "/laporan",
+      title: 'Laporan',
+      href: '/laporan',
       icon: <FileText className="w-5 h-5" />,
-      roles: ['admin', 'pengurus']
+      roles: ['admin', 'pengurus'],
     },
     {
-      title: "Admin",
-      href: "#",
+      title: 'Admin',
+      href: '#',
       icon: <Settings className="w-5 h-5" />,
-      roles: ["admin"],
+      roles: ['admin'],
       submenu: [
         {
-          title: "Pengaturan Absen", // <-- TAMBAHKAN INI
-          href: "/admin/pengaturan-absen",
+          title: 'Pengaturan Absen', // <-- TAMBAHKAN INI
+          href: '/admin/pengaturan-absen',
           icon: <Calendar className="w-5 h-5" />,
-          roles: ["admin"],
+          roles: ['admin'],
         },
         {
-          title: "Pengaturan",
-          href: "/admin/pengaturan",
+          title: 'Pengaturan',
+          href: '/admin/pengaturan',
           icon: <Settings className="w-5 h-5" />,
-          roles: ["admin"],
+          roles: ['admin'],
         },
       ],
     },
-  ];
+  ]
 
-
-  const filteredMenu = menuItems.filter((item) =>
-    item.roles.includes(userRole),
-  );
+  const filteredMenu = menuItems.filter((item) => item.roles.includes(userRole))
 
   const toggleSubmenu = (title: string) => {
-    setOpenSubmenu(openSubmenu === title ? null : title);
-  };
+    setOpenSubmenu(openSubmenu === title ? null : title)
+  }
 
-// Menjadi:
-const sidebarVariants = {
-  open: { x: 0 },
-  closed: { x: "-100%" },
-};
+  // Menjadi:
+  const sidebarVariants = {
+    open: { x: 0 },
+    closed: { x: '-100%' },
+  }
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
           className="rounded-full h-12 w-12 border-b-2 border-blue-600"
         />
       </div>
-    );
+    )
   }
 
   return (
@@ -260,7 +260,7 @@ const sidebarVariants = {
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={sidebarOpen || isDesktop ? "open" : "closed"}
+        animate={sidebarOpen || isDesktop ? 'open' : 'closed'}
         variants={sidebarVariants}
         className="fixed top-0 left-0 z-40 w-64 h-screen bg-white border-r shadow-xl lg:shadow-none"
       >
@@ -277,21 +277,19 @@ const sidebarVariants = {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
               <span className="text-blue-600 font-semibold">
-                {userData?.nama?.charAt(0) || "U"}
+                {userData?.nama?.charAt(0) || 'U'}
               </span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{userData?.nama}</p>
               <p className="text-xs text-slate-500">
-                {userRole === "admin"
-                  ? "Administrator"
-                  : userRole === "pengurus"
-                    ? "Pengurus"
-                    : "Anggota"}
+                {userRole === 'admin'
+                  ? 'Administrator'
+                  : userRole === 'pengurus'
+                    ? 'Pengurus'
+                    : 'Anggota'}
               </p>
-              <p className="text-xs text-slate-400 truncate">
-                {userData?.nomor_anggota}
-              </p>
+              <p className="text-xs text-slate-400 truncate">{userData?.nomor_anggota}</p>
             </div>
           </div>
         </div>
@@ -306,7 +304,7 @@ const sidebarVariants = {
                     onClick={() => toggleSubmenu(item.title)}
                     className={`
                       w-full flex items-center justify-between px-4 py-2 text-sm rounded-lg
-                      ${openSubmenu === item.title ? "bg-blue-50 text-blue-600" : "text-slate-600 hover:bg-slate-100"}
+                      ${openSubmenu === item.title ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:bg-slate-100'}
                     `}
                   >
                     <span className="flex items-center gap-3">
@@ -315,7 +313,7 @@ const sidebarVariants = {
                     </span>
                     <ChevronDown
                       className={`w-4 h-4 transition-transform ${
-                        openSubmenu === item.title ? "rotate-180" : ""
+                        openSubmenu === item.title ? 'rotate-180' : ''
                       }`}
                     />
                   </button>
@@ -325,7 +323,7 @@ const sidebarVariants = {
                     {openSubmenu === item.title && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
+                        animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.2 }}
                         className="ml-8 mt-1 space-y-1 overflow-hidden"
@@ -341,8 +339,8 @@ const sidebarVariants = {
                                 flex items-center gap-3 px-4 py-2 text-sm rounded-lg
                                 ${
                                   pathname === sub.href
-                                    ? "bg-blue-50 text-blue-600"
-                                    : "text-slate-600 hover:bg-slate-100"
+                                    ? 'bg-blue-50 text-blue-600'
+                                    : 'text-slate-600 hover:bg-slate-100'
                                 }
                               `}
                             >
@@ -362,8 +360,8 @@ const sidebarVariants = {
                     flex items-center gap-3 px-4 py-2 text-sm rounded-lg
                     ${
                       pathname === item.href
-                        ? "bg-blue-50 text-blue-600"
-                        : "text-slate-600 hover:bg-slate-100"
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-slate-600 hover:bg-slate-100'
                     }
                   `}
                 >
@@ -389,9 +387,7 @@ const sidebarVariants = {
       </motion.aside>
 
       {/* Main Content */}
-      <main className="transition-all duration-300 lg:ml-64 p-8">
-        {children}
-      </main>
+      <main className="transition-all duration-300 lg:ml-64 p-8">{children}</main>
 
       {/* Overlay for mobile */}
       <AnimatePresence>
@@ -406,5 +402,5 @@ const sidebarVariants = {
         )}
       </AnimatePresence>
     </div>
-  );
+  )
 }

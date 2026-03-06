@@ -1,85 +1,95 @@
-"use client"
+'use client'
 
-import { useState, useEffect, useCallback, useMemo } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
-import { useDebounce } from "use-debounce"
-import dynamic from "next/dynamic"
-import { Anggota } from "./components/types"
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Plus } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { useDebounce } from 'use-debounce'
+import dynamic from 'next/dynamic'
+import { Anggota } from './components/types'
 
 // COMPONENT BIASA
-import { FilterBar } from "./components/FilterBar"
-import { AnggotaTable } from "./components/AnggotaTable"
+import { FilterBar } from './components/FilterBar'
+import { AnggotaTable } from './components/AnggotaTable'
 
 // DYNAMIC IMPORT
-const ModalTambah = dynamic(() => import("./components/ModalTambah").then(mod => mod.default), {
+const ModalTambah = dynamic(() => import('./components/ModalTambah').then((mod) => mod.default), {
   loading: () => null,
-  ssr: false
+  ssr: false,
 })
 
-const ModalEdit = dynamic(() => import("./components/ModalEdit").then(mod => mod.default), {
+const ModalEdit = dynamic(() => import('./components/ModalEdit').then((mod) => mod.default), {
   loading: () => null,
-  ssr: false
+  ssr: false,
 })
 
-const ModalDetail = dynamic(() => import("./components/ModalDetail").then(mod => mod.default), {
+const ModalDetail = dynamic(() => import('./components/ModalDetail').then((mod) => mod.default), {
   loading: () => null,
-  ssr: false
+  ssr: false,
 })
 
-const ModalKonfirmasi = dynamic(() => import("./components/ModalKonfirmasi").then(mod => mod.default), {
-  loading: () => null,
-  ssr: false
-})
+const ModalKonfirmasi = dynamic(
+  () => import('./components/ModalKonfirmasi').then((mod) => mod.default),
+  {
+    loading: () => null,
+    ssr: false,
+  }
+)
 
-const ModalPassword = dynamic(() => import("./components/ModalPassword").then(mod => mod.default), {
-  loading: () => null,
-  ssr: false
-})
+const ModalPassword = dynamic(
+  () => import('./components/ModalPassword').then((mod) => mod.default),
+  {
+    loading: () => null,
+    ssr: false,
+  }
+)
 
 export default function DaftarAnggotaPage() {
   const router = useRouter() // ← PINDAHKAN KE SINI (PALING ATAS)
-  
+
   // Data
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<Anggota[]>([])
   const [userRole, setUserRole] = useState('')
-  
+
   // Filter
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300)
-  const [filterRole, setFilterRole] = useState("semua")
-  const [filterStatus, setFilterStatus] = useState("semua")
-  const [filterKelas, setFilterKelas] = useState("semua")
+  const [filterRole, setFilterRole] = useState('semua')
+  const [filterStatus, setFilterStatus] = useState('semua')
+  const [filterKelas, setFilterKelas] = useState('semua')
   // ========== PERBAIKAN 1: Tambah state kelasList ==========
-  const [kelasList, setKelasList] = useState<string[]>([])  // ← BENAR
+  const [kelasList, setKelasList] = useState<string[]>([]) // ← BENAR
   // =========================================================
-  
+
   // Modal state
   const [selectedAnggota, setSelectedAnggota] = useState<Anggota | null>(null)
   const [showTambah, setShowTambah] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [showDetail, setShowDetail] = useState(false)
   const [showKonfirmasi, setShowKonfirmasi] = useState(false)
-  const [konfirmasiMode, setKonfirmasiMode] = useState<'nonaktifkan' | 'aktifkan' | 'hapus'>('nonaktifkan')
+  const [konfirmasiMode, setKonfirmasiMode] = useState<'nonaktifkan' | 'aktifkan' | 'hapus'>(
+    'nonaktifkan'
+  )
   const [showPassword, setShowPassword] = useState(false)
-  const [generatedPassword, setGeneratedPassword] = useState("")
-  const [passwordEmail, setPasswordEmail] = useState("")
-  
+  const [generatedPassword, setGeneratedPassword] = useState('')
+  const [passwordEmail, setPasswordEmail] = useState('')
+
   // State untuk stok nomor
   const [stokNomor, setStokNomor] = useState<string[]>([])
-  
+
   // Pesan
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   // Cek role user
   useEffect(() => {
     const checkRole = async () => {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (!user) {
         router.push('/auth/login')
         return
@@ -111,16 +121,13 @@ export default function DaftarAnggotaPage() {
   const loadData = async () => {
     setLoading(true)
     const supabase = createClient()
-    
-    const { data: anggota } = await supabase
-      .from('anggota')
-      .select('*')
-      .order('nomor_anggota')
-    
+
+    const { data: anggota } = await supabase.from('anggota').select('*').order('nomor_anggota')
+
     setData(anggota || [])
-    
-    const kelas = [...new Set(anggota?.map(a => a.kelas).filter(Boolean))] as string[]
-    setKelasList(kelas.sort())  // ← Sekarang bisa dipanggil
+
+    const kelas = [...new Set(anggota?.map((a) => a.kelas).filter(Boolean))] as string[]
+    setKelasList(kelas.sort()) // ← Sekarang bisa dipanggil
     setLoading(false)
   }
 
@@ -132,7 +139,7 @@ export default function DaftarAnggotaPage() {
       .eq('status', 'tersedia')
       .order('nomor_anggota')
 
-    setStokNomor(data?.map(s => s.nomor_anggota) || [])
+    setStokNomor(data?.map((s) => s.nomor_anggota) || [])
   }
 
   const filterData = useCallback(() => {
@@ -140,24 +147,25 @@ export default function DaftarAnggotaPage() {
 
     if (debouncedSearchTerm) {
       const term = debouncedSearchTerm.toLowerCase()
-      filtered = filtered.filter(item =>
-        item.nomor_anggota.toLowerCase().includes(term) ||
-        item.nama.toLowerCase().includes(term) ||
-        item.email?.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (item) =>
+          item.nomor_anggota.toLowerCase().includes(term) ||
+          item.nama.toLowerCase().includes(term) ||
+          item.email?.toLowerCase().includes(term)
       )
     }
 
-    if (filterRole !== "semua") {
-      filtered = filtered.filter(item => item.role === filterRole)
+    if (filterRole !== 'semua') {
+      filtered = filtered.filter((item) => item.role === filterRole)
     }
 
-    if (filterStatus !== "semua") {
-      const isActive = filterStatus === "aktif"
-      filtered = filtered.filter(item => item.is_active === isActive)
+    if (filterStatus !== 'semua') {
+      const isActive = filterStatus === 'aktif'
+      filtered = filtered.filter((item) => item.is_active === isActive)
     }
 
-    if (filterKelas !== "semua") {
-      filtered = filtered.filter(item => item.kelas === filterKelas)
+    if (filterKelas !== 'semua') {
+      filtered = filtered.filter((item) => item.kelas === filterKelas)
     }
 
     return filtered
@@ -180,8 +188,12 @@ export default function DaftarAnggotaPage() {
 
       setMessage({ type: 'success', text: 'Anggota berhasil diaktifkan' })
       loadData()
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Gagal mengaktifkan anggota' })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage({ type: 'error', text: error.message })
+      } else {
+        setMessage({ type: 'error', text: 'Gagal mengaktifkan anggota' })
+      }
     } finally {
       setLoading(false)
       setShowKonfirmasi(false)
@@ -206,8 +218,12 @@ export default function DaftarAnggotaPage() {
 
       setMessage({ type: 'success', text: 'Anggota berhasil dinonaktifkan' })
       loadData()
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Gagal menonaktifkan anggota' })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage({ type: 'error', text: error.message })
+      } else {
+        setMessage({ type: 'error', text: 'Gagal mengaktifkan anggota' })
+      }
     } finally {
       setLoading(false)
       setShowKonfirmasi(false)
@@ -230,18 +246,19 @@ export default function DaftarAnggotaPage() {
         .eq('nomor_anggota', selectedAnggota.nomor_anggota)
 
       // Hapus anggota
-      const { error } = await supabase
-        .from('anggota')
-        .delete()
-        .eq('id', selectedAnggota.id)
+      const { error } = await supabase.from('anggota').delete().eq('id', selectedAnggota.id)
 
       if (error) throw error
 
       setMessage({ type: 'success', text: 'Anggota berhasil dihapus permanen' })
       loadData()
       loadStokNomor()
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Gagal menghapus anggota' })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage({ type: 'error', text: error.message })
+      } else {
+        setMessage({ type: 'error', text: 'Gagal menghapus anggota' })
+      }
     } finally {
       setLoading(false)
       setShowKonfirmasi(false)
@@ -345,11 +362,7 @@ export default function DaftarAnggotaPage() {
       )}
 
       {showDetail && selectedAnggota && (
-        <ModalDetail
-          open={showDetail}
-          onOpenChange={setShowDetail}
-          anggota={selectedAnggota}
-        />
+        <ModalDetail open={showDetail} onOpenChange={setShowDetail} anggota={selectedAnggota} />
       )}
 
       {showKonfirmasi && selectedAnggota && (

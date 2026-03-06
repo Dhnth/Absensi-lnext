@@ -1,17 +1,12 @@
-"use client"
+'use client'
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Clock } from "lucide-react"
-import { format } from "date-fns"
-import { id } from "date-fns/locale/id"
-import { Acara } from "./types"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Calendar, MapPin, Clock } from 'lucide-react'
+import { format } from 'date-fns'
+import { id } from 'date-fns/locale/id'
+import { Acara } from './types'
 
 interface ModalDaftarAcaraProps {
   open: boolean
@@ -26,17 +21,22 @@ export default function ModalDaftarAcara({
   onOpenChange,
   tanggal,
   acara,
-  onSelectAcara
+  onSelectAcara,
 }: ModalDaftarAcaraProps) {
   if (!tanggal) return null
 
   const getTipeColor = (tipe: string) => {
-    switch(tipe) {
-      case 'umum': return 'bg-blue-100 text-blue-700 border-blue-200'
-      case 'rapat': return 'bg-purple-100 text-purple-700 border-purple-200'
-      case 'kegiatan': return 'bg-green-100 text-green-700 border-green-200'
-      case 'libur': return 'bg-red-100 text-red-700 border-red-200'
-      default: return 'bg-slate-100 text-slate-700 border-slate-200'
+    switch (tipe) {
+      case 'umum':
+        return 'bg-blue-100 text-blue-700 border-blue-200'
+      case 'rapat':
+        return 'bg-purple-100 text-purple-700 border-purple-200'
+      case 'kegiatan':
+        return 'bg-green-100 text-green-700 border-green-200'
+      case 'libur':
+        return 'bg-red-100 text-red-700 border-red-200'
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200'
     }
   }
 
@@ -56,9 +56,7 @@ export default function ModalDaftarAcara({
 
         <div className="space-y-3 py-2">
           {acara.length === 0 ? (
-            <p className="text-center py-8 text-slate-400">
-              Tidak ada acara pada tanggal ini
-            </p>
+            <p className="text-center py-8 text-slate-400">Tidak ada acara pada tanggal ini</p>
           ) : (
             acara.map((a) => (
               <div
@@ -75,9 +73,7 @@ export default function ModalDaftarAcara({
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <h3 className="font-semibold text-base">{a.judul}</h3>
-                  <Badge className={getTipeColor(a.tipe)}>
-                    {a.tipe}
-                  </Badge>
+                  <Badge className={getTipeColor(a.tipe)}>{a.tipe}</Badge>
                 </div>
 
                 <div className="space-y-1 text-sm">
@@ -96,9 +92,7 @@ export default function ModalDaftarAcara({
                   )}
 
                   {a.deskripsi && (
-                    <p className="mt-2 text-sm text-slate-600 line-clamp-2">
-                      {a.deskripsi}
-                    </p>
+                    <p className="mt-2 text-sm text-slate-600 line-clamp-2">{a.deskripsi}</p>
                   )}
                 </div>
               </div>

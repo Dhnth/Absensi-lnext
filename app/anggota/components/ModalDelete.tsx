@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { useState } from "react";
+import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -8,54 +8,53 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Loader2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { Anggota } from "./types";
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertCircle, Loader2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { Anggota } from './types'
 
 interface ModalDeleteProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  anggota: Anggota | null;
-  onSuccess: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  anggota: Anggota | null
+  onSuccess: () => void
 }
 
-export default function ModalDelete({
-  open,
-  onOpenChange,
-  anggota,
-  onSuccess,
-}: ModalDeleteProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+export default function ModalDelete({ open, onOpenChange, anggota, onSuccess }: ModalDeleteProps) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleDelete = async () => {
-    if (!anggota) return;
+    if (!anggota) return
 
-    setLoading(true);
-    setError("");
+    setLoading(true)
+    setError('')
 
-    const supabase = createClient();
+    const supabase = createClient()
 
     try {
       const { error } = await supabase
-        .from("anggota")
+        .from('anggota')
         .update({ is_active: false })
-        .eq("id", anggota.id);
+        .eq('id', anggota.id)
 
-      if (error) throw error;
+      if (error) throw error
 
-      onSuccess();
-    } catch (err: any) {
-      setError(err.message || "Gagal menonaktifkan anggota");
+      onSuccess()
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Gagal menonaktifkan anggota')
+      }
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  if (!anggota) return null;
+  if (!anggota) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -63,8 +62,8 @@ export default function ModalDelete({
         <DialogHeader>
           <DialogTitle>Nonaktifkan Anggota</DialogTitle>
           <DialogDescription>
-            Apakah Anda yakin ingin menonaktifkan {anggota.nama}? Anggota tidak
-            akan bisa login. Nomor akan tetap disimpan.
+            Apakah Anda yakin ingin menonaktifkan {anggota.nama}? Anggota tidak akan bisa login.
+            Nomor akan tetap disimpan.
           </DialogDescription>
         </DialogHeader>
 
@@ -79,22 +78,18 @@ export default function ModalDelete({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Batal
           </Button>
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={loading}
-          >
+          <Button variant="destructive" onClick={handleDelete} disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Memproses...
               </>
             ) : (
-              "Ya, Nonaktifkan"
+              'Ya, Nonaktifkan'
             )}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

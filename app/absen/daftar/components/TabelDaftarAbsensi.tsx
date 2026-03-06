@@ -1,13 +1,20 @@
-"use client"
+'use client'
 
-import { useState, useMemo, memo } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { ChevronLeft, ChevronRight, Edit, Loader2, Users, Clock } from "lucide-react"
-import { DaftarAbsensiRow } from "./types"
+import { useState, useMemo, memo } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { ChevronLeft, ChevronRight, Edit, Loader2, Users, Clock } from 'lucide-react'
+import { DaftarAbsensiRow } from './types'
 
 interface TabelDaftarAbsensiProps {
   data: DaftarAbsensiRow[]
@@ -18,7 +25,7 @@ interface TabelDaftarAbsensiProps {
 }
 
 const StatusBadge = memo(({ status, jam }: { status: string; jam?: string }) => {
-  switch(status) {
+  switch (status) {
     case 'hadir':
       return (
         <div className="flex items-center gap-1">
@@ -47,12 +54,14 @@ const StatusBadge = memo(({ status, jam }: { status: string; jam?: string }) => 
   }
 })
 
-export const TabelDaftarAbsensi = memo(function TabelDaftarAbsensi({ 
-  data, 
-  loading, 
+StatusBadge.displayName = 'StatusBadge'
+
+export const TabelDaftarAbsensi = memo(function TabelDaftarAbsensi({
+  data,
+  loading,
   onEdit,
   canManage,
-  itemsPerPage = 20 
+  itemsPerPage = 20,
 }: TabelDaftarAbsensiProps) {
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -65,7 +74,7 @@ export const TabelDaftarAbsensi = memo(function TabelDaftarAbsensi({
   const getInitials = (nama: string) => {
     return nama
       .split(' ')
-      .map(word => word[0])
+      .map((word) => word[0])
       .join('')
       .toUpperCase()
       .slice(0, 2)
@@ -93,9 +102,7 @@ export const TabelDaftarAbsensi = memo(function TabelDaftarAbsensi({
               <TableHead className="px-4 py-3">Kelas</TableHead>
               <TableHead className="px-4 py-3">Status</TableHead>
               <TableHead className="px-4 py-3 text-right">Poin</TableHead>
-              {canManage && (
-                <TableHead className="px-4 py-3 text-center">Aksi</TableHead>
-              )}
+              {canManage && <TableHead className="px-4 py-3 text-center">Aksi</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -109,14 +116,19 @@ export const TabelDaftarAbsensi = memo(function TabelDaftarAbsensi({
             ) : (
               currentData.map((row, index) => {
                 const no = (currentPage - 1) * itemsPerPage + index + 1
-                const jam = row.absensi?.created_at 
-                  ? new Date(row.absensi.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                const jam = row.absensi?.created_at
+                  ? new Date(row.absensi.created_at).toLocaleTimeString('id-ID', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
                   : undefined
 
                 return (
                   <TableRow key={`${row.anggota.id}-${row.status}`} className="hover:bg-slate-50">
                     <TableCell className="px-4 py-3 font-mono">{no}</TableCell>
-                    <TableCell className="px-4 py-3 font-mono">{row.anggota.nomor_anggota}</TableCell>
+                    <TableCell className="px-4 py-3 font-mono">
+                      {row.anggota.nomor_anggota}
+                    </TableCell>
                     <TableCell className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <Avatar className="h-8 w-8">
@@ -158,7 +170,7 @@ export const TabelDaftarAbsensi = memo(function TabelDaftarAbsensi({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -166,7 +178,7 @@ export const TabelDaftarAbsensi = memo(function TabelDaftarAbsensi({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
               >
                 <ChevronRight className="w-4 h-4" />

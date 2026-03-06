@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import {
   Dialog,
@@ -7,9 +7,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { AlertTriangle, Loader2 } from "lucide-react"
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { AlertTriangle, Loader2 } from 'lucide-react'
 
 interface ModalHapusProps {
   open: boolean
@@ -24,7 +24,7 @@ export default function ModalHapus({
   onOpenChange,
   judul,
   onConfirm,
-  loading = false
+  loading = false,
 }: ModalHapusProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -35,14 +35,14 @@ export default function ModalHapus({
             Hapus Acara
           </DialogTitle>
           <DialogDescription>
-            Apakah Anda yakin ingin menghapus acara <span className="font-semibold text-slate-900">"{judul}"</span>?
+            <p>Apakah Anda yakin ingin menghapus acara &quot;{judul}&quot;?</p>
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-2">
           <p className="text-sm text-slate-500">
-            Tindakan ini akan menghapus acara secara permanen dan tidak dapat dibatalkan.
-            Semua data kehadiran terkait juga akan ikut terhapus.
+            Tindakan ini akan menghapus acara secara permanen dan tidak dapat dibatalkan. Semua data
+            kehadiran terkait juga akan ikut terhapus.
           </p>
         </div>
 

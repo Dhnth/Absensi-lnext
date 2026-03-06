@@ -1,21 +1,21 @@
-"use client"
+'use client'
 
-import { memo } from "react"
-import { TableCell, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { 
-  MoreHorizontal, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  UserCheck, 
-  UserX, 
+import { memo } from 'react'
+import { TableCell, TableRow } from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import {
+  MoreHorizontal,
+  Eye,
+  Edit,
+  Trash2,
+  UserCheck,
+  UserX,
   Zap,
   RotateCcw,
-  AlertTriangle
-} from "lucide-react"
+  AlertTriangle,
+} from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,8 +23,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Anggota } from "./types"
+} from '@/components/ui/dropdown-menu'
+import { Anggota } from './types'
 
 interface AnggotaRowProps {
   anggota: Anggota
@@ -36,18 +36,17 @@ interface AnggotaRowProps {
   userRole: string
 }
 
-export const AnggotaRow = memo(function AnggotaRow({ 
-  anggota, 
-  onDetail, 
-  onEdit, 
+export const AnggotaRow = memo(function AnggotaRow({
+  anggota,
+  onDetail,
+  onEdit,
   onNonaktifkan,
   onAktifkan,
   onHapusPermanen,
-  userRole
+  userRole,
 }: AnggotaRowProps) {
-  
   const getRoleBadge = (role: string) => {
-    switch(role) {
+    switch (role) {
       case 'admin':
         return <Badge className="bg-purple-100 text-purple-700">Admin</Badge>
       case 'pengurus':
@@ -60,7 +59,7 @@ export const AnggotaRow = memo(function AnggotaRow({
   const getInitials = (nama: string) => {
     return nama
       .split(' ')
-      .map(word => word[0])
+      .map((word) => word[0])
       .join('')
       .toUpperCase()
       .slice(0, 2)
@@ -71,9 +70,7 @@ export const AnggotaRow = memo(function AnggotaRow({
   return (
     <TableRow className="hover:bg-slate-50">
       {/* Nomor */}
-      <TableCell className="px-6 py-4 font-mono font-medium">
-        {anggota.nomor_anggota}
-      </TableCell>
+      <TableCell className="px-6 py-4 font-mono font-medium">{anggota.nomor_anggota}</TableCell>
 
       {/* Nama + Avatar */}
       <TableCell className="px-6 py-4">
@@ -85,27 +82,19 @@ export const AnggotaRow = memo(function AnggotaRow({
           </Avatar>
           <div>
             <p className="font-medium">{anggota.nama}</p>
-            <p className="text-xs text-slate-500 md:hidden">
-              {anggota.email || '-'}
-            </p>
+            <p className="text-xs text-slate-500 md:hidden">{anggota.email || '-'}</p>
           </div>
         </div>
       </TableCell>
 
       {/* Email (hidden di mobile) */}
-      <TableCell className="px-6 py-4 hidden md:table-cell">
-        {anggota.email || '-'}
-      </TableCell>
+      <TableCell className="px-6 py-4 hidden md:table-cell">{anggota.email || '-'}</TableCell>
 
       {/* Kelas (hidden di tablet) */}
-      <TableCell className="px-6 py-4 hidden lg:table-cell">
-        {anggota.kelas || '-'}
-      </TableCell>
+      <TableCell className="px-6 py-4 hidden lg:table-cell">{anggota.kelas || '-'}</TableCell>
 
       {/* Role */}
-      <TableCell className="px-6 py-4">
-        {getRoleBadge(anggota.role)}
-      </TableCell>
+      <TableCell className="px-6 py-4">{getRoleBadge(anggota.role)}</TableCell>
 
       {/* Status */}
       <TableCell className="px-6 py-4">
@@ -145,7 +134,7 @@ export const AnggotaRow = memo(function AnggotaRow({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-            
+
             {/* Detail - untuk semua */}
             <DropdownMenuItem onClick={() => onDetail(anggota)}>
               <Eye className="w-4 h-4 mr-2" />
@@ -162,18 +151,12 @@ export const AnggotaRow = memo(function AnggotaRow({
 
             {/* Aktifkan/Nonaktifkan */}
             {anggota.is_active ? (
-              <DropdownMenuItem 
-                onClick={() => onNonaktifkan(anggota)}
-                className="text-orange-600"
-              >
+              <DropdownMenuItem onClick={() => onNonaktifkan(anggota)} className="text-orange-600">
                 <UserX className="w-4 h-4 mr-2" />
                 Nonaktifkan
               </DropdownMenuItem>
             ) : (
-              <DropdownMenuItem 
-                onClick={() => onAktifkan(anggota)}
-                className="text-green-600"
-              >
+              <DropdownMenuItem onClick={() => onAktifkan(anggota)} className="text-green-600">
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Aktifkan
               </DropdownMenuItem>
@@ -183,10 +166,7 @@ export const AnggotaRow = memo(function AnggotaRow({
             {isAdmin && (
               <>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={() => onHapusPermanen(anggota)}
-                  className="text-red-600"
-                >
+                <DropdownMenuItem onClick={() => onHapusPermanen(anggota)} className="text-red-600">
                   <Trash2 className="w-4 h-4 mr-2" />
                   Hapus Permanen
                 </DropdownMenuItem>

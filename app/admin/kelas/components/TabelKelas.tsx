@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useState, useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState, useMemo } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -9,27 +9,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import {
-  Edit,
-  Trash2,
-  Plus,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-} from "lucide-react";
-import { Kelas } from "./types";
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Edit, Trash2, Plus, Search, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { Kelas } from './types'
 
 interface TabelKelasProps {
-  data: Kelas[];
-  loading: boolean;
-  onEdit: (kelas: Kelas) => void;
-  onDelete: (id: number) => void;
-  itemsPerPage?: number;
+  data: Kelas[]
+  loading: boolean
+  onEdit: (kelas: Kelas) => void
+  onDelete: (id: number) => void
+  itemsPerPage?: number
 }
 
 export function TabelKelas({
@@ -39,26 +31,25 @@ export function TabelKelas({
   onDelete,
   itemsPerPage = 10,
 }: TabelKelasProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
 
   // Filter data
   const filteredData = useMemo(() => {
-    if (!searchTerm) return data;
-    const term = searchTerm.toLowerCase();
+    if (!searchTerm) return data
+    const term = searchTerm.toLowerCase()
     return data.filter(
       (item) =>
-        item.nama.toLowerCase().includes(term) ||
-        item.deskripsi?.toLowerCase().includes(term),
-    );
-  }, [data, searchTerm]);
+        item.nama.toLowerCase().includes(term) || item.deskripsi?.toLowerCase().includes(term)
+    )
+  }, [data, searchTerm])
 
   // Pagination
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage)
   const currentData = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return filteredData.slice(start, start + itemsPerPage);
-  }, [filteredData, currentPage, itemsPerPage]);
+    const start = (currentPage - 1) * itemsPerPage
+    return filteredData.slice(start, start + itemsPerPage)
+  }, [filteredData, currentPage, itemsPerPage])
 
   if (loading) {
     return (
@@ -67,7 +58,7 @@ export function TabelKelas({
           <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
@@ -98,36 +89,27 @@ export function TabelKelas({
           <TableBody>
             {currentData.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="text-center py-12 text-slate-400"
-                >
+                <TableCell colSpan={4} className="text-center py-12 text-slate-400">
                   <p>Tidak ada data kelas</p>
                 </TableCell>
               </TableRow>
             ) : (
               currentData.map((item, index) => {
-                const nomor = (currentPage - 1) * itemsPerPage + index + 1;
+                const nomor = (currentPage - 1) * itemsPerPage + index + 1
                 return (
                   <TableRow key={item.id} className="hover:bg-slate-50">
-                    <TableCell className="px-4 py-3 font-mono">
-                      {nomor}
-                    </TableCell>
+                    <TableCell className="px-4 py-3 font-mono">{nomor}</TableCell>
                     <TableCell className="px-4 py-3 font-medium">
                       <Badge variant="outline" className="bg-blue-50">
                         {item.nama}
                       </Badge>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-slate-600">
-                      {item.deskripsi || "-"}
+                      {item.deskripsi || '-'}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onEdit(item)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => onEdit(item)}>
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
@@ -141,7 +123,7 @@ export function TabelKelas({
                       </div>
                     </TableCell>
                   </TableRow>
-                );
+                )
               })
             )}
           </TableBody>
@@ -165,9 +147,7 @@ export function TabelKelas({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
               >
                 <ChevronRight className="w-4 h-4" />
@@ -177,5 +157,5 @@ export function TabelKelas({
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

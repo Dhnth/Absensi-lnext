@@ -1,14 +1,20 @@
-"use client"
+'use client'
 
-import { memo, useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, Search, RefreshCw } from "lucide-react"
-import { format } from "date-fns"
-import { createClient } from "@/lib/supabase/client"
+import { memo, useState, useEffect } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Calendar, Search, RefreshCw } from 'lucide-react'
+import { format } from 'date-fns'
+import { createClient } from '@/lib/supabase/client'
 
 interface FilterDaftarProps {
   tanggal: string
@@ -29,19 +35,16 @@ export const FilterDaftar = memo(function FilterDaftar({
   searchTerm,
   onSearchChange,
   onRefresh,
-  loading
+  loading,
 }: FilterDaftarProps) {
   const [kelasOptions, setKelasOptions] = useState<string[]>([])
 
   useEffect(() => {
     const loadKelas = async () => {
       const supabase = createClient()
-      const { data } = await supabase
-        .from('kelas')
-        .select('nama')
-        .order('nama')
-      
-      setKelasOptions(data?.map(k => k.nama) || [])
+      const { data } = await supabase.from('kelas').select('nama').order('nama')
+
+      setKelasOptions(data?.map((k) => k.nama) || [])
     }
     loadKelas()
   }, [])
@@ -52,7 +55,9 @@ export const FilterDaftar = memo(function FilterDaftar({
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Tanggal */}
           <div className="space-y-2">
-            <Label htmlFor="tanggal" className="text-sm">Tanggal</Label>
+            <Label htmlFor="tanggal" className="text-sm">
+              Tanggal
+            </Label>
             <div className="relative">
               <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
               <Input
@@ -67,7 +72,9 @@ export const FilterDaftar = memo(function FilterDaftar({
 
           {/* Filter Kelas */}
           <div className="space-y-2">
-            <Label htmlFor="kelas" className="text-sm">Kelas</Label>
+            <Label htmlFor="kelas" className="text-sm">
+              Kelas
+            </Label>
             <Select value={filterKelas} onValueChange={onKelasChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Semua Kelas" />
@@ -75,7 +82,9 @@ export const FilterDaftar = memo(function FilterDaftar({
               <SelectContent>
                 <SelectItem value="semua">Semua Kelas</SelectItem>
                 {kelasOptions.map((kelas) => (
-                  <SelectItem key={kelas} value={kelas}>{kelas}</SelectItem>
+                  <SelectItem key={kelas} value={kelas}>
+                    {kelas}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -83,7 +92,9 @@ export const FilterDaftar = memo(function FilterDaftar({
 
           {/* Search */}
           <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="search" className="text-sm">Cari Anggota</Label>
+            <Label htmlFor="search" className="text-sm">
+              Cari Anggota
+            </Label>
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
               <Input

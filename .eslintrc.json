@@ -17,7 +17,8 @@
     "react-hooks",
     "jsx-a11y",
     "import",
-    "prettier"
+    "prettier",
+    "unused-imports"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -46,53 +47,65 @@
     "react/display-name": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    
+
     // TypeScript
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/no-unused-vars": ["warn", { 
-      "argsIgnorePattern": "^_",
-      "varsIgnorePattern": "^_" 
-    }],
-    
-    // Import
-    "import/order": ["error", {
-      "groups": [
-        "builtin",
-        "external",
-        "internal",
-        "parent",
-        "sibling",
-        "index"
-      ],
-      "newlines-between": "always",
-      "alphabetize": {
-        "order": "asc",
-        "caseInsensitive": true
+
+    // ========== UNUSED IMPORTS (AUTO-FIXABLE) ==========
+    "@typescript-eslint/no-unused-vars": "off", // Matikan rule bawaan
+    "unused-imports/no-unused-imports": "error", // Auto-hapus import tidak dipakai
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^_"
       }
-    }],
+    ],
+    // =================================================
+
+    // Import
+    "import/order": [
+      "error",
+      {
+        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ],
     "import/no-unresolved": "error",
     "import/no-duplicates": "error",
-    
+
     // General
-    "no-console": ["warn", { 
-      "allow": ["warn", "error", "info"] 
-    }],
+    "no-console": [
+      "warn",
+      {
+        "allow": ["warn", "error", "info"]
+      }
+    ],
     "no-debugger": "warn",
     "eqeqeq": ["error", "always"],
     "curly": ["error", "all"],
-    
+
     // Prettier
-    "prettier/prettier": ["error", {
-      "semi": false,
-      "singleQuote": true,
-      "tabWidth": 2,
-      "trailingComma": "es5",
-      "printWidth": 100,
-      "bracketSpacing": true,
-      "arrowParens": "always",
-      "endOfLine": "auto"
-    }]
+    "prettier/prettier": [
+      "error",
+      {
+        "semi": false,
+        "singleQuote": true,
+        "tabWidth": 2,
+        "trailingComma": "es5",
+        "printWidth": 100,
+        "bracketSpacing": true,
+        "arrowParens": "always",
+        "endOfLine": "auto"
+      }
+    ]
   },
   "env": {
     "browser": true,

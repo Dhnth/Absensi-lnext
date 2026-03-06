@@ -1,19 +1,19 @@
-"use client"
+'use client'
 
-import { useState, useMemo } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { 
-  Table, 
-  TableBody, 
-  TableHead, 
-  TableHeader, 
+import { useState, useMemo } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
   TableRow,
-  TableCell
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Users, Loader2 } from "lucide-react"
-import { AnggotaRow } from "./AnggotaRow"
-import { Anggota } from "./types"
+  TableCell,
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { ChevronLeft, ChevronRight, Users, Loader2 } from 'lucide-react'
+import { AnggotaRow } from './AnggotaRow'
+import { Anggota } from './types'
 
 interface AnggotaTableProps {
   data: Anggota[]
@@ -27,16 +27,16 @@ interface AnggotaTableProps {
   itemsPerPage?: number
 }
 
-export function AnggotaTable({ 
-  data, 
-  loading, 
+export function AnggotaTable({
+  data,
+  loading,
   userRole,
-  onEdit, 
+  onEdit,
   onNonaktifkan,
   onAktifkan,
   onHapusPermanen,
   onDetail,
-  itemsPerPage = 10 
+  itemsPerPage = 10,
 }: AnggotaTableProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const totalPages = Math.ceil(data.length / itemsPerPage)
@@ -108,7 +108,7 @@ export function AnggotaTable({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -116,7 +116,7 @@ export function AnggotaTable({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
               >
                 <ChevronRight className="w-4 h-4" />

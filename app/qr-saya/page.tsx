@@ -1,17 +1,11 @@
-"use client";
+'use client'
 
-import { QRCodeCanvas } from "qrcode.react";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { QRCodeCanvas } from 'qrcode.react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Download,
   Loader2,
@@ -20,66 +14,75 @@ import {
   Hash,
   Award,
   CheckCircle2,
-} from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+} from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function QrSayaPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState<any>(null);
-  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  interface UserData {
+    id: number
+    nomor_anggota: string
+    nama: string
+    email: string
+    poin: number
+    streak: number
+    kelas: string | null
+  }
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [downloadSuccess, setDownloadSuccess] = useState(false)
 
   useEffect(() => {
     const getUserData = async () => {
-      const supabase = createClient();
+      const supabase = createClient()
 
       const {
         data: { user },
-      } = await supabase.auth.getUser();
+      } = await supabase.auth.getUser()
 
       if (!user) {
-        router.push("/auth/login");
-        return;
+        router.push('/auth/login')
+        return
       }
 
       const { data: anggota } = await supabase
-        .from("anggota")
-        .select("*")
-        .eq("email", user.email)
-        .single();
+        .from('anggota')
+        .select('*')
+        .eq('email', user.email)
+        .single()
 
       if (!anggota?.nomor_anggota) {
-        router.push("/pairing");
-        return;
+        router.push('/pairing')
+        return
       }
 
-      setUserData(anggota);
-      setLoading(false);
-    };
+      setUserData(anggota)
+      setLoading(false)
+    }
 
-    getUserData();
-  }, [router]);
+    getUserData()
+  }, [router])
 
   const handleDownload = () => {
-    const canvas = document.getElementById("qr-code") as HTMLCanvasElement;
+    const canvas = document.getElementById('qr-code') as HTMLCanvasElement
     if (canvas) {
-      const url = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.download = `QR-${userData?.nomor_anggota}.png`;
-      link.href = url;
-      link.click();
+      const url = canvas.toDataURL('image/png')
+      const link = document.createElement('a')
+      link.download = `QR-${userData?.nomor_anggota}.png`
+      link.href = url
+      link.click()
 
-      setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 3000);
+      setDownloadSuccess(true)
+      setTimeout(() => setDownloadSuccess(false), 3000)
     }
-  };
+  }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
-    );
+    )
   }
 
   return (
@@ -111,9 +114,7 @@ export default function QrSayaPage() {
               <QrCodeIcon className="w-5 h-5 text-blue-600" />
               QR Code Anda
             </CardTitle>
-            <CardDescription className="text-sm">
-              Scan untuk absen cepat
-            </CardDescription>
+            <CardDescription className="text-sm">Scan untuk absen cepat</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
             {/* QR Code */}
@@ -136,10 +137,7 @@ export default function QrSayaPage() {
             </div>
 
             {/* Tombol Download */}
-            <Button
-              onClick={handleDownload}
-              className="w-full gap-2 text-sm sm:text-base"
-            >
+            <Button onClick={handleDownload} className="w-full gap-2 text-sm sm:text-base">
               <Download className="w-4 h-4" />
               Download QR Code
             </Button>
@@ -158,9 +156,7 @@ export default function QrSayaPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs sm:text-sm text-slate-500">Nama</p>
-                <p className="font-semibold text-base sm:text-lg truncate">
-                  {userData.nama}
-                </p>
+                <p className="font-semibold text-base sm:text-lg truncate">{userData.nama}</p>
               </div>
             </div>
 
@@ -175,23 +171,17 @@ export default function QrSayaPage() {
               <div className="p-3 sm:p-4 bg-slate-50 rounded-lg">
                 <Award className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 mb-1 sm:mb-2" />
                 <p className="text-xs text-slate-500">Poin</p>
-                <p className="font-bold text-yellow-600 text-sm sm:text-base">
-                  {userData.poin}
-                </p>
+                <p className="font-bold text-yellow-600 text-sm sm:text-base">{userData.poin}</p>
               </div>
             </div>
 
             <div className="p-3 sm:p-4 bg-green-50 rounded-lg">
-              <p className="text-xs sm:text-sm text-green-700 mb-2">
-                Cara Penggunaan:
-              </p>
+              <p className="text-xs sm:text-sm text-green-700 mb-2">Cara Penggunaan:</p>
               <ol className="list-decimal list-inside text-xs sm:text-sm text-green-600 space-y-1">
                 <li className="break-words">Download/simpan QR Code ini</li>
                 <li className="break-words">Cetak atau simpan di HP</li>
                 <li className="break-words">Tunjukkan ke petugas untuk scan</li>
-                <li className="break-words">
-                  Atau scan sendiri (jika ada fitur)
-                </li>
+                <li className="break-words">Atau scan sendiri (jika ada fitur)</li>
               </ol>
             </div>
           </CardContent>
@@ -202,12 +192,11 @@ export default function QrSayaPage() {
       <Card>
         <CardContent className="p-3 sm:p-4">
           <p className="text-xs sm:text-sm text-slate-600">
-            <span className="font-semibold">Tips:</span> Simpan QR Code ini di
-            HP atau cetak untuk memudahkan absen. Setiap scan akan otomatis
-            mencatat kehadiran Anda.
+            <span className="font-semibold">Tips:</span> Simpan QR Code ini di HP atau cetak untuk
+            memudahkan absen. Setiap scan akan otomatis mencatat kehadiran Anda.
           </p>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from 'react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Card,
   CardContent,
@@ -11,38 +11,38 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Mail, ArrowLeft, Send, CheckCircle2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+} from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Mail, ArrowLeft, Send, CheckCircle2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function LupaPasswordPage() {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
-    const supabase = createClient();
+    const supabase = createClient()
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
-    });
+    })
 
     if (error) {
-      setError(error.message);
-      setLoading(false);
-      return;
+      setError(error.message)
+      setLoading(false)
+      return
     }
 
-    setSuccess(true);
-    setLoading(false);
-  };
+    setSuccess(true)
+    setLoading(false)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center p-4">
@@ -64,12 +64,12 @@ export default function LupaPasswordPage() {
               )}
             </div>
             <CardTitle className="text-2xl text-center">
-              {success ? "Cek Email Anda" : "Lupa Password?"}
+              {success ? 'Cek Email Anda' : 'Lupa Password?'}
             </CardTitle>
             <CardDescription className="text-center">
               {success
-                ? "Kami sudah mengirim link reset password ke email Anda"
-                : "Masukkan email Anda, kami akan kirim link untuk reset password"}
+                ? 'Kami sudah mengirim link reset password ke email Anda'
+                : 'Masukkan email Anda, kami akan kirim link untuk reset password'}
             </CardDescription>
           </CardHeader>
 
@@ -100,12 +100,8 @@ export default function LupaPasswordPage() {
               </CardContent>
 
               <CardFooter className="flex flex-col gap-4">
-                <Button
-                  type="submit"
-                  className="w-full gap-2 mt-5"
-                  disabled={loading}
-                >
-                  {loading ? "Mengirim..." : "Kirim Link Reset"}
+                <Button type="submit" className="w-full gap-2 mt-5" disabled={loading}>
+                  {loading ? 'Mengirim...' : 'Kirim Link Reset'}
                   {!loading && <Send className="w-4 h-4" />}
                 </Button>
               </CardFooter>
@@ -134,15 +130,12 @@ export default function LupaPasswordPage() {
           )}
 
           <CardFooter className="justify-center">
-            <Link
-              href="/auth/login"
-              className="text-sm text-blue-600 hover:underline"
-            >
+            <Link href="/auth/login" className="text-sm text-blue-600 hover:underline">
               Ingat password? Login
             </Link>
           </CardFooter>
         </Card>
       </div>
     </div>
-  );
+  )
 }

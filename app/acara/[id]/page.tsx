@@ -1,35 +1,35 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { 
-  ArrowLeft, 
-  Calendar, 
-  MapPin, 
-  User, 
-  Users, 
-  Edit, 
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  ArrowLeft,
+  Calendar,
+  MapPin,
+  User,
+  Users,
+  Edit,
   Trash2,
   Clock,
   CheckCircle2,
   XCircle,
-  Loader2
-} from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
-import { format } from "date-fns"
-import { id as localeID } from "date-fns/locale/id"
-import { Acara, KehadiranAcara } from "../components/types"
+  Loader2,
+} from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { format } from 'date-fns'
+import { id as localeID } from 'date-fns/locale/id'
+import { Acara, KehadiranAcara } from '../components/types'
 
 export default function DetailAcaraPage() {
   const router = useRouter()
   const params = useParams()
   const id = params?.id as string
-  
+
   const [loading, setLoading] = useState(true)
   const [acara, setAcara] = useState<Acara | null>(null)
   const [kehadiran, setKehadiran] = useState<KehadiranAcara[]>([])
@@ -47,12 +47,14 @@ export default function DetailAcaraPage() {
   const loadData = async () => {
     setLoading(true)
     setError(null)
-    
+
     const supabase = createClient()
 
     try {
       // Get user
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) {
         router.push('/auth/login')
         return
@@ -83,27 +85,28 @@ export default function DetailAcaraPage() {
         return
       }
 
-      console.log("Acara data dari DB:", acaraData)
+      console.log('Acara data dari DB:', acaraData)
       setAcara(acaraData)
 
       // Get kehadiran
       const { data: kehadiranData } = await supabase
         .from('kehadiran_acara')
-        .select(`
+        .select(
+          `
           *,
           anggota:anggota_id (
             nama,
             nomor_anggota
           )
-        `)
+        `
+        )
         .eq('acara_id', id)
 
       setKehadiran(kehadiranData || [])
 
       // Cek kehadiran user
-      const userHadir = kehadiranData?.find(k => k.anggota_id === userData?.id)
+      const userHadir = kehadiranData?.find((k) => k.anggota_id === userData?.id)
       setUserKehadiran(userHadir?.status || null)
-
     } catch (err) {
       console.error('Error loading data:', err)
       setError('Terjadi kesalahan saat memuat data')
@@ -127,13 +130,11 @@ export default function DetailAcaraPage() {
           .eq('anggota_id', userId)
       } else {
         // Insert
-        await supabase
-          .from('kehadiran_acara')
-          .insert({
-            acara_id: acara.id,
-            anggota_id: userId,
-            status
-          })
+        await supabase.from('kehadiran_acara').insert({
+          acara_id: acara.id,
+          anggota_id: userId,
+          status,
+        })
       }
 
       setUserKehadiran(status)
@@ -148,12 +149,9 @@ export default function DetailAcaraPage() {
     if (!confirm('Yakin ingin menghapus acara ini?')) return
 
     const supabase = createClient()
-    
+
     try {
-      await supabase
-        .from('acara')
-        .delete()
-        .eq('id', acara.id)
+      await supabase.from('acara').delete().eq('id', acara.id)
 
       router.push('/acara')
     } catch (err) {
@@ -162,31 +160,36 @@ export default function DetailAcaraPage() {
   }
 
   const getTipeColor = (tipe: string) => {
-    switch(tipe) {
-      case 'umum': return 'bg-blue-100 text-blue-700'
-      case 'rapat': return 'bg-purple-100 text-purple-700'
-      case 'kegiatan': return 'bg-green-100 text-green-700'
-      case 'libur': return 'bg-red-100 text-red-700'
-      default: return 'bg-slate-100 text-slate-700'
+    switch (tipe) {
+      case 'umum':
+        return 'bg-blue-100 text-blue-700'
+      case 'rapat':
+        return 'bg-purple-100 text-purple-700'
+      case 'kegiatan':
+        return 'bg-green-100 text-green-700'
+      case 'libur':
+        return 'bg-red-100 text-red-700'
+      default:
+        return 'bg-slate-100 text-slate-700'
     }
   }
 
   // ========== FORMAT TANGGAL MANUAL (PASTI BERHASIL) ==========
-const formatTanggalIndonesia = (tanggal: string) => {
-  if (!tanggal) return "-"
+  const formatTanggalIndonesia = (tanggal: string) => {
+    if (!tanggal) return '-'
 
-  try {
-    const date = new Date(tanggal)
+    try {
+      const date = new Date(tanggal)
 
-    if (isNaN(date.getTime())) return "-"
+      if (isNaN(date.getTime())) return '-'
 
-    return format(date, "EEEE, dd MMMM yyyy HH:mm", {
-      locale: localeID,
-    })
-  } catch {
-    return "-"
+      return format(date, 'EEEE, dd MMMM yyyy HH:mm', {
+        locale: localeID,
+      })
+    } catch {
+      return '-'
+    }
   }
-}
 
   if (loading) {
     return (
@@ -223,9 +226,7 @@ const formatTanggalIndonesia = (tanggal: string) => {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">{acara.judul}</h1>
           <div className="flex items-center gap-2 mt-2">
-            <Badge className={getTipeColor(acara.tipe)}>
-              {acara.tipe}
-            </Badge>
+            <Badge className={getTipeColor(acara.tipe)}>{acara.tipe}</Badge>
           </div>
         </div>
 
@@ -251,13 +252,9 @@ const formatTanggalIndonesia = (tanggal: string) => {
               <Calendar className="w-5 h-5 text-blue-600 mt-0.5" />
               <div>
                 <p className="text-sm text-slate-500">Mulai</p>
-                <p className="font-medium">
-                  {formatTanggalIndonesia(acara.tanggal_mulai)}
-                </p>
+                <p className="font-medium">{formatTanggalIndonesia(acara.tanggal_mulai)}</p>
                 <p className="text-sm text-slate-500 mt-2">Selesai</p>
-                <p className="font-medium">
-                  {formatTanggalIndonesia(acara.tanggal_selesai)}
-                </p>
+                <p className="font-medium">{formatTanggalIndonesia(acara.tanggal_selesai)}</p>
               </div>
             </div>
 
@@ -316,11 +313,12 @@ const formatTanggalIndonesia = (tanggal: string) => {
             </div>
             {userKehadiran && (
               <p className="text-sm text-slate-500 mt-3">
-                Status Anda: {
-                  userKehadiran === 'hadir' ? 'Hadir' : 
-                  userKehadiran === 'izin' ? 'Izin' : 
-                  'Tidak Hadir'
-                }
+                Status Anda:{' '}
+                {userKehadiran === 'hadir'
+                  ? 'Hadir'
+                  : userKehadiran === 'izin'
+                    ? 'Izin'
+                    : 'Tidak Hadir'}
               </p>
             )}
           </CardContent>
@@ -347,13 +345,14 @@ const formatTanggalIndonesia = (tanggal: string) => {
           </CardHeader>
           <CardContent>
             {kehadiran.length === 0 ? (
-              <p className="text-center py-8 text-slate-400">
-                Belum ada konfirmasi kehadiran
-              </p>
+              <p className="text-center py-8 text-slate-400">Belum ada konfirmasi kehadiran</p>
             ) : (
               <div className="space-y-3">
                 {kehadiran.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                  >
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
                         <AvatarFallback className="bg-blue-100 text-blue-600">
@@ -365,14 +364,20 @@ const formatTanggalIndonesia = (tanggal: string) => {
                         <p className="text-xs text-slate-500">{item.anggota?.nomor_anggota}</p>
                       </div>
                     </div>
-                    <Badge className={
-                      item.status === 'hadir' ? 'bg-green-100 text-green-700' :
-                      item.status === 'izin' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
-                    }>
-                      {item.status === 'hadir' ? 'Hadir' : 
-                       item.status === 'izin' ? 'Izin' : 
-                       'Tidak Hadir'}
+                    <Badge
+                      className={
+                        item.status === 'hadir'
+                          ? 'bg-green-100 text-green-700'
+                          : item.status === 'izin'
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-red-100 text-red-700'
+                      }
+                    >
+                      {item.status === 'hadir'
+                        ? 'Hadir'
+                        : item.status === 'izin'
+                          ? 'Izin'
+                          : 'Tidak Hadir'}
                     </Badge>
                   </div>
                 ))}

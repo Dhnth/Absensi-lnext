@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -8,29 +8,29 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import bcrypt from "bcryptjs";
-import { Anggota } from "./types";
+} from '@/components/ui/select'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertCircle, Loader2, RefreshCw } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import bcrypt from 'bcryptjs'
+import { Anggota } from './types'
 
 interface ModalEditProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  anggota: Anggota | null;
-  onSuccess: () => void;
-  onResetPassword: (password: string, email: string) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  anggota: Anggota | null
+  onSuccess: () => void
+  onResetPassword: (password: string, email: string) => void
 }
 
 export default function ModalEdit({
@@ -40,132 +40,136 @@ export default function ModalEdit({
   onSuccess,
   onResetPassword,
 }: ModalEditProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [stokNomor, setStokNomor] = useState<string[]>([]);
-  const [kelasOptions, setKelasOptions] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [stokNomor, setStokNomor] = useState<string[]>([])
+  const [kelasOptions, setKelasOptions] = useState<string[]>([])
 
   const [formData, setFormData] = useState({
-    nomor_anggota: "",
-    nama: "",
-    email: "",
-    role: "anggota" as "admin" | "pengurus" | "anggota",
-    kelas: "",
+    nomor_anggota: '',
+    nama: '',
+    email: '',
+    role: 'anggota' as 'admin' | 'pengurus' | 'anggota',
+    kelas: '',
     is_active: true,
-  });
+  })
 
   useEffect(() => {
     if (open && anggota) {
       setFormData({
         nomor_anggota: anggota.nomor_anggota,
         nama: anggota.nama,
-        email: anggota.email || "",
+        email: anggota.email || '',
         role: anggota.role,
-        kelas: anggota.kelas || "",
+        kelas: anggota.kelas || '',
         is_active: anggota.is_active,
-      });
-      loadStokNomor();
-      loadKelas();
+      })
+      loadStokNomor()
+      loadKelas()
     }
-  }, [open, anggota]);
+  }, [open, anggota])
 
   const loadStokNomor = async () => {
-    const supabase = createClient();
+    const supabase = createClient()
     const { data } = await supabase
-      .from("stok_nomor_anggota")
-      .select("nomor_anggota")
-      .eq("status", "tersedia")
-      .order("nomor_anggota");
+      .from('stok_nomor_anggota')
+      .select('nomor_anggota')
+      .eq('status', 'tersedia')
+      .order('nomor_anggota')
 
-    setStokNomor(data?.map((s) => s.nomor_anggota) || []);
-  };
+    setStokNomor(data?.map((s) => s.nomor_anggota) || [])
+  }
 
   const loadKelas = async () => {
-    const supabase = createClient();
-    const { data } = await supabase.from("kelas").select("nama").order("nama");
+    const supabase = createClient()
+    const { data } = await supabase.from('kelas').select('nama').order('nama')
 
-    setKelasOptions(data?.map((k) => k.nama) || []);
-  };
+    setKelasOptions(data?.map((k) => k.nama) || [])
+  }
 
   const handleResetPassword = async () => {
-    if (!anggota) return;
+    if (!anggota) return
 
-    setLoading(true);
-    const supabase = createClient();
+    setLoading(true)
+    const supabase = createClient()
 
     try {
-      const plainPassword = Math.random().toString(36).slice(-8);
-      const hashedPassword = await bcrypt.hash(plainPassword, 10);
+      const plainPassword = Math.random().toString(36).slice(-8)
+      const hashedPassword = await bcrypt.hash(plainPassword, 10)
 
       const { error } = await supabase
-        .from("anggota")
+        .from('anggota')
         .update({ password: hashedPassword })
-        .eq("id", anggota.id);
+        .eq('id', anggota.id)
 
-      if (error) throw error;
+      if (error) throw error
 
-      onResetPassword(plainPassword, anggota.email);
-    } catch (err: any) {
-      setError(err.message || "Gagal reset password");
+      onResetPassword(plainPassword, anggota.email)
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Gagal reset password')
+      }
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!anggota) return;
+    e.preventDefault()
+    if (!anggota) return
 
-    setLoading(true);
-    setError("");
+    setLoading(true)
+    setError('')
 
-    const supabase = createClient();
+    const supabase = createClient()
 
     try {
       // Cek email unik
       if (formData.email !== anggota.email) {
         const { data: cekEmail } = await supabase
-          .from("anggota")
-          .select("id")
-          .eq("email", formData.email)
-          .maybeSingle();
+          .from('anggota')
+          .select('id')
+          .eq('email', formData.email)
+          .maybeSingle()
 
         if (cekEmail) {
-          setError("Email sudah terdaftar oleh anggota lain!");
-          return;
+          setError('Email sudah terdaftar oleh anggota lain!')
+          return
         }
       }
 
       // Cek perubahan nomor
-      const nomorBerubah = formData.nomor_anggota !== anggota.nomor_anggota;
+      const nomorBerubah = formData.nomor_anggota !== anggota.nomor_anggota
 
       if (nomorBerubah) {
         const { data: cekNomor } = await supabase
-          .from("anggota")
-          .select("id")
-          .eq("nomor_anggota", formData.nomor_anggota)
-          .neq("id", anggota.id)
-          .maybeSingle();
+          .from('anggota')
+          .select('id')
+          .eq('nomor_anggota', formData.nomor_anggota)
+          .neq('id', anggota.id)
+          .maybeSingle()
 
         if (cekNomor) {
-          setError("Nomor anggota sudah digunakan anggota lain!");
-          return;
+          setError('Nomor anggota sudah digunakan anggota lain!')
+          return
         }
 
         await supabase
-          .from("stok_nomor_anggota")
-          .update({ status: "tersedia" })
-          .eq("nomor_anggota", anggota.nomor_anggota);
+          .from('stok_nomor_anggota')
+          .update({ status: 'tersedia' })
+          .eq('nomor_anggota', anggota.nomor_anggota)
 
         await supabase
-          .from("stok_nomor_anggota")
-          .update({ status: "terpakai" })
-          .eq("nomor_anggota", formData.nomor_anggota);
+          .from('stok_nomor_anggota')
+          .update({ status: 'terpakai' })
+          .eq('nomor_anggota', formData.nomor_anggota)
       }
 
       // Update anggota
       const { error } = await supabase
-        .from("anggota")
+        .from('anggota')
         .update({
           nomor_anggota: formData.nomor_anggota,
           nama: formData.nama,
@@ -174,29 +178,30 @@ export default function ModalEdit({
           kelas: formData.kelas || null,
           is_active: formData.is_active,
         })
-        .eq("id", anggota.id);
+        .eq('id', anggota.id)
 
-      if (error) throw error;
+      if (error) throw error
 
-
-      onSuccess();
-    } catch (err: any) {
-      setError(err.message || "Gagal mengupdate anggota");
+      onSuccess()
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Gagal mengupdate anggota')
+      }
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  if (!anggota) return null;
+  if (!anggota) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Edit Anggota</DialogTitle>
-          <DialogDescription>
-            Edit data anggota {anggota.nama}
-          </DialogDescription>
+          <DialogDescription>Edit data anggota {anggota.nama}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -212,9 +217,7 @@ export default function ModalEdit({
             <Label>Nomor Anggota</Label>
             <Select
               value={formData.nomor_anggota}
-              onValueChange={(value) =>
-                setFormData({ ...formData, nomor_anggota: value })
-              }
+              onValueChange={(value) => setFormData({ ...formData, nomor_anggota: value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Pilih nomor anggota" />
@@ -239,9 +242,7 @@ export default function ModalEdit({
             <Label>Nama Lengkap</Label>
             <Input
               value={formData.nama}
-              onChange={(e) =>
-                setFormData({ ...formData, nama: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
               required
             />
           </div>
@@ -252,9 +253,7 @@ export default function ModalEdit({
             <Input
               type="email"
               value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
             />
           </div>
@@ -264,7 +263,7 @@ export default function ModalEdit({
             <Label>Role</Label>
             <Select
               value={formData.role}
-              onValueChange={(value: any) =>
+              onValueChange={(value: 'admin' | 'pengurus' | 'anggota') =>
                 setFormData({ ...formData, role: value })
               }
             >
@@ -283,11 +282,11 @@ export default function ModalEdit({
           <div className="space-y-2">
             <Label>Kelas</Label>
             <Select
-              value={formData.kelas || "no-class"}
+              value={formData.kelas || 'no-class'}
               onValueChange={(value) =>
                 setFormData({
                   ...formData,
-                  kelas: value === "no-class" ? "" : value,
+                  kelas: value === 'no-class' ? '' : value,
                 })
               }
             >
@@ -311,9 +310,7 @@ export default function ModalEdit({
               type="checkbox"
               id="edit-is_active"
               checked={formData.is_active}
-              onChange={(e) =>
-                setFormData({ ...formData, is_active: e.target.checked })
-              }
+              onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
               className="w-4 h-4"
             />
             <Label htmlFor="edit-is_active">Aktif</Label>
@@ -335,11 +332,7 @@ export default function ModalEdit({
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Batal
             </Button>
             <Button type="submit" disabled={loading}>
@@ -349,12 +342,12 @@ export default function ModalEdit({
                   Menyimpan...
                 </>
               ) : (
-                "Update"
+                'Update'
               )}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

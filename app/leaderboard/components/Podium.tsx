@@ -1,35 +1,31 @@
-"use client";
+'use client'
 
-import { memo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Award, Medal, Trophy, Zap } from "lucide-react";
+import { memo } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Award, Medal, Trophy, Zap } from 'lucide-react'
 
 interface PodiumProps {
   pertama: {
-    nama: string;
-    nomor_anggota: string;
-    poin: number;
-    streak: number;
-  } | null;
+    nama: string
+    nomor_anggota: string
+    poin: number
+    streak: number
+  } | null
   kedua: {
-    nama: string;
-    nomor_anggota: string;
-    poin: number;
-    streak: number;
-  } | null;
+    nama: string
+    nomor_anggota: string
+    poin: number
+    streak: number
+  } | null
   ketiga: {
-    nama: string;
-    nomor_anggota: string;
-    poin: number;
-    streak: number;
-  } | null;
+    nama: string
+    nomor_anggota: string
+    poin: number
+    streak: number
+  } | null
 }
 
-export const Podium = memo(function Podium({
-  pertama,
-  kedua,
-  ketiga,
-}: PodiumProps) {
+export const Podium = memo(function Podium({ pertama, kedua, ketiga }: PodiumProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
       {/* Juara 2 (kiri) */}
@@ -40,9 +36,7 @@ export const Podium = memo(function Podium({
           </div>
           {kedua ? (
             <>
-              <p className="text-sm text-slate-500 mb-1">
-                #{kedua.nomor_anggota}
-              </p>
+              <p className="text-sm text-slate-500 mb-1">#{kedua.nomor_anggota}</p>
               <p className="font-bold text-lg truncate">{kedua.nama}</p>
               <div className="flex items-center justify-center gap-3 mt-3">
                 <div className="flex items-center gap-1">
@@ -70,9 +64,7 @@ export const Podium = memo(function Podium({
           </div>
           {pertama ? (
             <>
-              <p className="text-sm text-yellow-600 mb-1">
-                #{pertama.nomor_anggota}
-              </p>
+              <p className="text-sm text-yellow-600 mb-1">#{pertama.nomor_anggota}</p>
               <p className="font-bold text-xl truncate">{pertama.nama}</p>
               <div className="flex items-center justify-center gap-3 mt-3">
                 <div className="flex items-center gap-1">
@@ -84,9 +76,7 @@ export const Podium = memo(function Podium({
                   <span className="font-semibold">{pertama.streak}</span>
                 </div>
               </div>
-              <p className="text-xs font-medium text-yellow-600 mt-2">
-                Juara 1
-              </p>
+              <p className="text-xs font-medium text-yellow-600 mt-2">Juara 1</p>
             </>
           ) : (
             <p className="text-slate-300">-</p>
@@ -102,9 +92,7 @@ export const Podium = memo(function Podium({
           </div>
           {ketiga ? (
             <>
-              <p className="text-sm text-slate-500 mb-1">
-                #{ketiga.nomor_anggota}
-              </p>
+              <p className="text-sm text-slate-500 mb-1">#{ketiga.nomor_anggota}</p>
               <p className="font-bold text-lg truncate">{ketiga.nama}</p>
               <div className="flex items-center justify-center gap-3 mt-3">
                 <div className="flex items-center gap-1">
@@ -124,5 +112,5 @@ export const Podium = memo(function Podium({
         </CardContent>
       </Card>
     </div>
-  );
-});
+  )
+})

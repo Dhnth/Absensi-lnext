@@ -1,31 +1,34 @@
-"use client"
+'use client'
 
-import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Plus, List, Calendar as CalendarIcon } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
-import dynamic from "next/dynamic"
-import { CalendarView } from "./components/CalendarView"
-import { DaftarAcara } from "./components/DaftarAcara"
-import { Acara, AcaraFormData } from "./components/types"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CheckCircle2 } from "lucide-react"
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Plus, List, Calendar as CalendarIcon } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import dynamic from 'next/dynamic'
+import { CalendarView } from './components/CalendarView'
+import { DaftarAcara } from './components/DaftarAcara'
+import { Acara, AcaraFormData } from './components/types'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { CheckCircle2 } from 'lucide-react'
 
 // Dynamic import untuk modal
-const ModalAcara = dynamic(() => import("./components/ModalAcara").then(mod => mod.default), {
+const ModalAcara = dynamic(() => import('./components/ModalAcara').then((mod) => mod.default), {
   loading: () => null,
-  ssr: false
+  ssr: false,
 })
 
-const ModalDetailAcara = dynamic(() => import("./components/ModalDetailAcara").then(mod => mod.default), {
-  loading: () => null,
-  ssr: false
-})
+const ModalDetailAcara = dynamic(
+  () => import('./components/ModalDetailAcara').then((mod) => mod.default),
+  {
+    loading: () => null,
+    ssr: false,
+  }
+)
 
-const ModalHapus = dynamic(() => import("./components/ModalHapus").then(mod => mod.default), {
+const ModalHapus = dynamic(() => import('./components/ModalHapus').then((mod) => mod.default), {
   loading: () => null,
-  ssr: false
+  ssr: false,
 })
 
 export default function AcaraPage() {
@@ -38,7 +41,7 @@ export default function AcaraPage() {
   const [showHapusModal, setShowHapusModal] = useState(false)
   const [modalMode, setModalMode] = useState<'tambah' | 'edit'>('tambah')
   const [selectedAcara, setSelectedAcara] = useState<Acara | null>(null)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [userRole, setUserRole] = useState<string>('')
   const [hapusLoading, setHapusLoading] = useState(false)
 
@@ -46,8 +49,10 @@ export default function AcaraPage() {
   useEffect(() => {
     const checkRole = async () => {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (!user) {
         router.push('/auth/login')
         return
@@ -73,27 +78,29 @@ export default function AcaraPage() {
   const loadAcara = async () => {
     setLoading(true)
     const supabase = createClient()
-    
+
     const { data, error } = await supabase
       .from('acara')
       .select('*')
       .order('tanggal_mulai', { ascending: true })
-    
+
     if (error) {
-      console.error("Error:", error)
+      console.error('Error:', error)
       setMessage({ type: 'error', text: 'Gagal memuat acara' })
     } else {
-      console.log("Data acara:", data)
+      console.log('Data acara:', data)
       setAcara(data || [])
     }
-    
+
     setLoading(false)
   }
 
   const handleSave = async (formData: AcaraFormData, id?: number) => {
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     if (id) {
       // Edit
       const { error } = await supabase
@@ -104,61 +111,59 @@ export default function AcaraPage() {
           lokasi: formData.lokasi,
           tanggal_mulai: formData.tanggal_mulai,
           tanggal_selesai: formData.tanggal_selesai,
-          tipe: formData.tipe
+          tipe: formData.tipe,
         })
         .eq('id', id)
-      
+
       if (error) throw error
 
       // ========== LOG AKTIVITAS EDIT ACARA ==========
-      await supabase.from("log_aktivitas").insert({
-  anggota_id: user?.id,
-  aksi: "update_acara",
-  detail: {
-    acara_id: id,
-    judul: formData.judul,
-    tanggal_mulai: formData.tanggal_mulai,
-    tanggal_selesai: formData.tanggal_selesai,
-    tipe: formData.tipe,
-    lokasi: formData.lokasi
-  }
-});
+      await supabase.from('log_aktivitas').insert({
+        anggota_id: user?.id,
+        aksi: 'update_acara',
+        detail: {
+          acara_id: id,
+          judul: formData.judul,
+          tanggal_mulai: formData.tanggal_mulai,
+          tanggal_selesai: formData.tanggal_selesai,
+          tipe: formData.tipe,
+          lokasi: formData.lokasi,
+        },
+      })
       // =============================================
 
       setMessage({ type: 'success', text: 'Acara berhasil diupdate' })
     } else {
       // Tambah
-      const { error } = await supabase
-        .from('acara')
-        .insert({
-          judul: formData.judul,
-          deskripsi: formData.deskripsi,
-          lokasi: formData.lokasi,
-          tanggal_mulai: formData.tanggal_mulai,
-          tanggal_selesai: formData.tanggal_selesai,
-          tipe: formData.tipe,
-          created_by: user?.id
-        })
-      
+      const { error } = await supabase.from('acara').insert({
+        judul: formData.judul,
+        deskripsi: formData.deskripsi,
+        lokasi: formData.lokasi,
+        tanggal_mulai: formData.tanggal_mulai,
+        tanggal_selesai: formData.tanggal_selesai,
+        tipe: formData.tipe,
+        created_by: user?.id,
+      })
+
       if (error) throw error
 
       // ========== LOG AKTIVITAS TAMBAH ACARA ==========
-      await supabase.from("log_aktivitas").insert({
-  anggota_id: user?.id,
-  aksi: "create_acara",
-  detail: {
-    judul: formData.judul,
-    tanggal_mulai: formData.tanggal_mulai,
-    tanggal_selesai: formData.tanggal_selesai,
-    tipe: formData.tipe,
-    lokasi: formData.lokasi
-  }
-});
+      await supabase.from('log_aktivitas').insert({
+        anggota_id: user?.id,
+        aksi: 'create_acara',
+        detail: {
+          judul: formData.judul,
+          tanggal_mulai: formData.tanggal_mulai,
+          tanggal_selesai: formData.tanggal_selesai,
+          tipe: formData.tipe,
+          lokasi: formData.lokasi,
+        },
+      })
       // ===============================================
 
       setMessage({ type: 'success', text: 'Acara berhasil ditambahkan' })
     }
-    
+
     loadAcara()
     setTimeout(() => setMessage(null), 3000)
   }
@@ -168,22 +173,23 @@ export default function AcaraPage() {
 
     setHapusLoading(true)
     const supabase = createClient()
-    
+
     try {
-      const { error } = await supabase
-        .from('acara')
-        .delete()
-        .eq('id', selectedAcara.id)
-      
+      const { error } = await supabase.from('acara').delete().eq('id', selectedAcara.id)
+
       if (error) throw error
-      
+
       setMessage({ type: 'success', text: 'Acara berhasil dihapus' })
       loadAcara()
       setShowHapusModal(false)
       setShowDetailModal(false)
       setSelectedAcara(null)
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Gagal menghapus acara' })
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setMessage({ type: 'error', text: err.message })
+      } else {
+        setMessage({ type: 'error', text: 'Gagal menghapus acara' })
+      }
     } finally {
       setHapusLoading(false)
       setTimeout(() => setMessage(null), 3000)
@@ -191,18 +197,21 @@ export default function AcaraPage() {
   }
 
   const handleSelectDate = useCallback((date: Date) => {
-    console.log("Selected date:", date)
+    console.log('Selected date:', date)
   }, [])
 
   const handleSelectAcara = useCallback((acara: Acara) => {
-    console.log("SELECTED ACARA:", acara)
+    console.log('SELECTED ACARA:', acara)
     setSelectedAcara(acara)
     setShowDetailModal(true)
   }, [])
 
-  const handleLihatDetail = useCallback((id: number) => {
-    router.push(`/acara/${id}`)
-  }, [router])
+  const handleLihatDetail = useCallback(
+    (id: number) => {
+      router.push(`/acara/${id}`)
+    },
+    [router]
+  )
 
   const handleHapusClick = useCallback((acara: Acara) => {
     setSelectedAcara(acara)
@@ -222,7 +231,7 @@ export default function AcaraPage() {
             Kelola jadwal kegiatan komunitas
           </p>
         </div>
-        
+
         <div className="flex gap-2">
           {/* Toggle View */}
           <div className="flex border rounded-lg overflow-hidden">
@@ -246,11 +255,13 @@ export default function AcaraPage() {
 
           {/* Tombol Tambah */}
           {canManage && (
-            <Button onClick={() => {
-              setSelectedAcara(null)
-              setModalMode('tambah')
-              setShowModal(true)
-            }}>
+            <Button
+              onClick={() => {
+                setSelectedAcara(null)
+                setModalMode('tambah')
+                setShowModal(true)
+              }}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Buat Acara
             </Button>
@@ -260,11 +271,13 @@ export default function AcaraPage() {
 
       {/* Pesan Notifikasi */}
       {message && (
-        <Alert className={message.type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}>
+        <Alert
+          className={
+            message.type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+          }
+        >
           <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-700">
-            {message.text}
-          </AlertDescription>
+          <AlertDescription className="text-green-700">{message.text}</AlertDescription>
         </Alert>
       )}
 
@@ -276,10 +289,7 @@ export default function AcaraPage() {
           onSelectAcara={handleSelectAcara}
         />
       ) : (
-        <DaftarAcara
-          acara={acara}
-          onSelect={handleSelectAcara}
-        />
+        <DaftarAcara acara={acara} onSelect={handleSelectAcara} />
       )}
 
       {/* Modal Tambah/Edit Acara */}

@@ -7,11 +7,13 @@ Aplikasi absensi digital berbasis web untuk komunitas/kelas yang dibangun dengan
 ## ✨ Fitur Lengkap
 
 ### 👥 Manajemen Pengguna
+
 - **3 Level Role**: Admin, Pengurus, Anggota
 - Login menggunakan **Email + Password** atau **Google OAuth**
 - Sistem pairing nomor anggota dengan akun
 
 ### 📅 Absensi Digital
+
 - **Scan QR Code** - Absen cepat 1 detik
 - **Input Nomor Anggota** - Absen manual untuk petugas
 - **Ajukan Izin/Sakit** - Khusus untuk role anggota
@@ -19,6 +21,7 @@ Aplikasi absensi digital berbasis web untuk komunitas/kelas yang dibangun dengan
 - **Edit Status** - Admin/pengurus bisa edit status kehadiran
 
 ### 🏆 Sistem Poin & Leaderboard
+
 - **Hadir**: +10 poin
 - **Izin/Sakit**: +5 poin
 - **Alpha**: 0 poin
@@ -26,6 +29,7 @@ Aplikasi absensi digital berbasis web untuk komunitas/kelas yang dibangun dengan
 - **Leaderboard Interaktif** - Peringkat 3 besar + tabel lengkap
 
 ### 📊 Dashboard & Laporan
+
 - **Dashboard Interaktif** - Statistik real-time, grafik
 - **Top 5 Anggota** - Peringkat poin
 - **Acara Terdekat** - Jadwal kegiatan
@@ -33,17 +37,20 @@ Aplikasi absensi digital berbasis web untuk komunitas/kelas yang dibangun dengan
 - **Filter Periode & Kelas** - Rekap kehadiran
 
 ### 📱 QR Code
+
 - QR unik untuk setiap anggota (berisi nomor anggota)
 - Download QR untuk dicetak/disimpan
 - Scan QR untuk absen langsung
 
 ### 📅 Manajemen Acara
+
 - Buat, edit, hapus acara
 - Kalender interaktif
 - Konfirmasi kehadiran acara
 - Multi-day events
 
 ### ⚙️ Pengaturan
+
 - Manajemen kelas (CRUD)
 - Stok nomor anggota
 - Pengaturan hari libur
@@ -51,17 +58,17 @@ Aplikasi absensi digital berbasis web untuk komunitas/kelas yang dibangun dengan
 
 ## 🛠️ Teknologi yang Digunakan
 
-| Komponen | Teknologi |
-|----------|-----------|
-| Frontend | Next.js 15, TypeScript |
-| Styling | TailwindCSS, shadcn/ui |
-| Database | Supabase (PostgreSQL) |
-| Auth | Supabase Auth |
-| QR Code | html5-qrcode, qrcode.react |
-| Excel | ExcelJS, file-saver |
-| Animasi | Framer Motion |
-| Date Handling | date-fns |
-| Form | React Hook Form, Zod |
+| Komponen      | Teknologi                  |
+| ------------- | -------------------------- |
+| Frontend      | Next.js 15, TypeScript     |
+| Styling       | TailwindCSS, shadcn/ui     |
+| Database      | Supabase (PostgreSQL)      |
+| Auth          | Supabase Auth              |
+| QR Code       | html5-qrcode, qrcode.react |
+| Excel         | ExcelJS, file-saver        |
+| Animasi       | Framer Motion              |
+| Date Handling | date-fns                   |
+| Form          | React Hook Form, Zod       |
 
 ## 📋 Prasyarat Sistem
 
@@ -73,12 +80,14 @@ Aplikasi absensi digital berbasis web untuk komunitas/kelas yang dibangun dengan
 ## 🚀 Cara Installasi Lengkap
 
 ### 1. Clone Repository
+
 ```bash
 git clone https://github.com/username/absensi-komunitas.git
 cd absensi-komunitas
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 # atau
@@ -86,6 +95,7 @@ yarn install
 ```
 
 ### 3. Install Dependencies Tambahan
+
 ```bash
 # Install shadcn/ui components
 npx shadcn@latest init
@@ -112,6 +122,7 @@ npm install framer-motion
 ```
 
 ### 4. Setup Environment Variables
+
 Buat file `.env.local` di root folder:
 
 ```env
@@ -122,6 +133,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ### 5. Setup Database di Supabase
 
 #### a. Buat project di Supabase
+
 1. Buka [supabase.com](https://supabase.com)
 2. Klik "New Project"
 3. Isi:
@@ -256,7 +268,7 @@ FROM generate_series(1, 100) AS gs;
 -- Buat admin pertama (ganti email & password dengan yang diinginkan)
 -- Password: admin123 (hash dengan bcrypt)
 -- Hash: $2a$10$YourHashedPasswordHere
-INSERT INTO anggota (nomor_anggota, email, password, nama, role, is_active) 
+INSERT INTO anggota (nomor_anggota, email, password, nama, role, is_active)
 VALUES ('2425001', 'admin@komunitas.com', '$2a$10$YourHashedPasswordHere', 'Administrator', 'admin', true);
 ```
 
@@ -272,10 +284,12 @@ VALUES ('2425001', 'admin@komunitas.com', '$2a$10$YourHashedPasswordHere', 'Admi
    - Masukkan Client ID & Secret dari Google Cloud Console
 
 ### 7. Generate Stok Nomor Awal (Alternatif)
+
 Jika tidak ingin pakai SQL, setelah aplikasi jalan, login sebagai admin dan buka:
 `/admin/stok-nomor` → klik "Generate 10"
 
 ### 8. Jalankan Aplikasi
+
 ```bash
 npm run dev
 # atau
@@ -287,21 +301,24 @@ Akses aplikasi di: **http://localhost:3000**
 ## 🔑 Akun Default
 
 ### Admin
-| Email | Password | Nomor Anggota |
-|-------|----------|---------------|
-| admin@komunitas.com | admin123 | 2425001 |
+
+| Email               | Password | Nomor Anggota |
+| ------------------- | -------- | ------------- |
+| admin@komunitas.com | admin123 | 2425001       |
 
 ### Pengurus
-| Email | Password | Nomor Anggota |
-|-------|----------|---------------|
-| pengurus@komunitas.com | pengurus123 | 2425002 |
+
+| Email                  | Password    | Nomor Anggota |
+| ---------------------- | ----------- | ------------- |
+| pengurus@komunitas.com | pengurus123 | 2425002       |
 
 ### Anggota
-| Email | Password | Nomor Anggota |
-|-------|----------|---------------|
-| anggota@komunitas.com | anggota123 | 2425003 |
 
-*Catatan: Buat akun-akun tersebut melalui halaman register, lalu ubah role di database.*
+| Email                 | Password   | Nomor Anggota |
+| --------------------- | ---------- | ------------- |
+| anggota@komunitas.com | anggota123 | 2425003       |
+
+_Catatan: Buat akun-akun tersebut melalui halaman register, lalu ubah role di database._
 
 ## 📁 Struktur Proyek
 
@@ -354,27 +371,28 @@ absensi-komunitas/
 
 ## 👥 Matriks Hak Akses
 
-| Fitur | Admin | Pengurus | Anggota |
-|-------|-------|----------|---------|
-| Dashboard | ✅ | ✅ | ✅ |
-| Absen QR | ✅ | ✅ | ✅ |
-| QR Code Saya | ✅ | ✅ | ✅ |
-| Absen Manual | ✅ | ✅ | ❌ |
-| Daftar Absensi | ✅ | ✅ | ✅ |
-| Ajukan Izin/Sakit | ✅ | ✅ | ✅ |
-| Daftar Anggota | ✅ | ✅ | ❌ |
-| Tambah Anggota | ✅ | ✅ | ❌ |
-| Edit Anggota | ✅ | ✅ | ❌ |
-| Stok Nomor | ✅ | ❌ | ❌ |
-| Leaderboard | ✅ | ✅ | ✅ |
-| Acara | ✅ | ✅ | ✅ |
-| Laporan | ✅ | ✅ | ❌ |
-| Pengaturan Absen | ✅ | ❌ | ❌ |
-| Manajemen Kelas | ✅ | ❌ | ❌ |
+| Fitur             | Admin | Pengurus | Anggota |
+| ----------------- | ----- | -------- | ------- |
+| Dashboard         | ✅    | ✅       | ✅      |
+| Absen QR          | ✅    | ✅       | ✅      |
+| QR Code Saya      | ✅    | ✅       | ✅      |
+| Absen Manual      | ✅    | ✅       | ❌      |
+| Daftar Absensi    | ✅    | ✅       | ✅      |
+| Ajukan Izin/Sakit | ✅    | ✅       | ✅      |
+| Daftar Anggota    | ✅    | ✅       | ❌      |
+| Tambah Anggota    | ✅    | ✅       | ❌      |
+| Edit Anggota      | ✅    | ✅       | ❌      |
+| Stok Nomor        | ✅    | ❌       | ❌      |
+| Leaderboard       | ✅    | ✅       | ✅      |
+| Acara             | ✅    | ✅       | ✅      |
+| Laporan           | ✅    | ✅       | ❌      |
+| Pengaturan Absen  | ✅    | ❌       | ❌      |
+| Manajemen Kelas   | ✅    | ❌       | ❌      |
 
 ## 🎯 Panduan Penggunaan
 
 ### Untuk Admin & Pengurus
+
 1. **Absen Manual**: Buka menu `Absensi` → `Absen Manual`, input nomor anggota
 2. **Absen QR**: Buka `Absensi` → `Absen QR`, arahkan kamera
 3. **Kelola Anggota**: Buka `Manajemen Anggota` → `Daftar Anggota`
@@ -382,6 +400,7 @@ absensi-komunitas/
 5. **Lihat Laporan**: Buka `Laporan`, pilih periode, export Excel
 
 ### Untuk Anggota
+
 1. **QR Code Saya**: Buka `Absensi` → `QR Code Saya`, download QR
 2. **Ajukan Izin/Sakit**: Buka `Absensi` → `Ajukan Izin/Sakit`
 3. **Lihat Kehadiran**: Buka `Absensi` → `Daftar Absensi`
@@ -390,24 +409,28 @@ absensi-komunitas/
 ## 📊 Demo Fitur
 
 ### Dashboard
+
 - Statistik real-time
 - Top 5 anggota berpoin
 - Acara terdekat
 - Aksi cepat
 
 ### Absensi via QR Code
+
 - Scan otomatis
 - Loading state saat proses
 - Informasi detail setelah absen
 - Kamera otomatis nyala lagi
 
 ### Leaderboard
+
 - Podium 3 besar
 - Tabel peringkat
 - Filter kelas
 - Info poin & streak
 
 ### Laporan Excel
+
 - 2 sheet: Rekap & Detail Harian
 - Warna berdasarkan status
 - Total per kolom
@@ -416,15 +439,16 @@ absensi-komunitas/
 ## 🐛 Troubleshooting
 
 ### Error: "duplicate key value violates unique constraint"
+
 ```sql
 -- Cek duplikat di database
-SELECT anggota_id, tanggal, COUNT(*) 
-FROM absensi 
-GROUP BY anggota_id, tanggal 
+SELECT anggota_id, tanggal, COUNT(*)
+FROM absensi
+GROUP BY anggota_id, tanggal
 HAVING COUNT(*) > 1;
 
 -- Hapus duplikat
-DELETE FROM absensi 
+DELETE FROM absensi
 WHERE id IN (
   SELECT id FROM (
     SELECT id, ROW_NUMBER() OVER (PARTITION BY anggota_id, tanggal ORDER BY created_at DESC) as rn
@@ -435,11 +459,13 @@ WHERE id IN (
 ```
 
 ### Error: Kamera tidak muncul
+
 - Pastikan HTTPS di production
 - Cek izin kamera di browser
 - Coba browser lain (Chrome/Edge)
 
 ### Error: Module not found
+
 ```bash
 # Install ulang dependencies
 rm -rf node_modules package-lock.json
@@ -447,6 +473,7 @@ npm install
 ```
 
 ### Error: Supabase connection
+
 - Cek `.env.local` sudah benar
 - Cek di dashboard Supabase → Settings → API
 - Pastikan project aktif
@@ -456,6 +483,7 @@ npm install
 ### Deploy ke Vercel (Rekomendasi)
 
 1. **Push ke GitHub**
+
 ```bash
 git init
 git add .
@@ -466,17 +494,20 @@ git push -u origin main
 ```
 
 2. **Buka Vercel**
+
 - Buka [vercel.com](https://vercel.com)
 - Login dengan GitHub
 - Klik "Add New" → "Project"
 - Pilih repository `absensi-komunitas`
 
 3. **Setting Environment Variables**
-Tambahkan:
+   Tambahkan:
+
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 4. **Deploy**
+
 - Klik "Deploy"
 - Tunggu hingga selesai
 - Aplikasi live di `https://absensi-komunitas.vercel.app`
@@ -509,6 +540,7 @@ Tambahkan:
 5. Buat Pull Request
 
 ### Standar Commit
+
 - `feat:` - Fitur baru
 - `fix:` - Perbaikan bug
 - `docs:` - Dokumentasi
@@ -548,6 +580,7 @@ SOFTWARE.
 ## Credit
 
 Dibangun menggunakan:
+
 - [Next.js](https://nextjs.org/)
 - [Supabase](https://supabase.com/)
 - [TailwindCSS](https://tailwindcss.com/)

@@ -1,31 +1,31 @@
-"use client";
+'use client'
 
-import { memo, useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { memo, useEffect, useState } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Search, RefreshCw } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+} from '@/components/ui/select'
+import { Search, RefreshCw } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 interface FilterBarProps {
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
-  filterRole: string;
-  onRoleChange: (value: string) => void;
-  filterStatus: string;
-  onStatusChange: (value: string) => void;
-  filterKelas: string;
-  onKelasChange: (value: string) => void;
-  totalData: number;
-  filteredCount: number;
-  onRefresh: () => void;
+  searchTerm: string
+  onSearchChange: (value: string) => void
+  filterRole: string
+  onRoleChange: (value: string) => void
+  filterStatus: string
+  onStatusChange: (value: string) => void
+  filterKelas: string
+  onKelasChange: (value: string) => void
+  totalData: number
+  filteredCount: number
+  onRefresh: () => void
 }
 
 export const FilterBar = memo(function FilterBar({
@@ -41,21 +41,18 @@ export const FilterBar = memo(function FilterBar({
   filteredCount,
   onRefresh,
 }: FilterBarProps) {
-  const [kelasOptions, setKelasOptions] = useState<string[]>([]);
+  const [kelasOptions, setKelasOptions] = useState<string[]>([])
 
   // Load kelas dari database
   useEffect(() => {
     const loadKelas = async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("kelas")
-        .select("nama")
-        .order("nama");
+      const supabase = createClient()
+      const { data } = await supabase.from('kelas').select('nama').order('nama')
 
-      setKelasOptions(data?.map((k) => k.nama) || []);
-    };
-    loadKelas();
-  }, []);
+      setKelasOptions(data?.map((k) => k.nama) || [])
+    }
+    loadKelas()
+  }, [])
 
   return (
     <Card>
@@ -125,5 +122,5 @@ export const FilterBar = memo(function FilterBar({
         </div>
       </CardContent>
     </Card>
-  );
-});
+  )
+})

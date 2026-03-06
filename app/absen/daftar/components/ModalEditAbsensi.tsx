@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -8,15 +8,23 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle, Loader2, Clock, CheckCircle2, XCircle, Clock3, HelpCircle } from "lucide-react"
-import { format } from "date-fns"
-import { id } from "date-fns/locale/id"
-import { DaftarAbsensiRow } from "./types"
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  AlertCircle,
+  Loader2,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Clock3,
+  HelpCircle,
+} from 'lucide-react'
+import { format } from 'date-fns'
+import { id } from 'date-fns/locale/id'
+import { DaftarAbsensiRow } from './types'
 
 interface ModalEditAbsensiProps {
   open: boolean
@@ -33,34 +41,24 @@ export default function ModalEditAbsensi({
   data,
   tanggal,
   onSave,
-  loading = false
+  loading = false,
 }: ModalEditAbsensiProps) {
-  const [status, setStatus] = useState<string>("alpha")
-  const [keterangan, setKeterangan] = useState("")
-  const [error, setError] = useState("")
+  const [status, setStatus] = useState(data?.status || 'alpha')
+  const [keterangan, setKeterangan] = useState(data?.absensi?.keterangan || '')
 
-  useEffect(() => {
-    if (data) {
-      setStatus(data.status)
-      setKeterangan(data.absensi?.keterangan || "")
-    } else {
-      setStatus("alpha")
-      setKeterangan("")
-    }
-    setError("")
-  }, [data, open])
+  const [error, setError] = useState('')
 
   if (!data) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if ((status === 'izin' || status === 'sakit') && !keterangan.trim()) {
-      setError("Keterangan wajib diisi untuk Izin/Sakit")
+      setError('Keterangan wajib diisi untuk Izin/Sakit')
       return
     }
 
-    setError("")
+    setError('')
     await onSave(status, keterangan)
   }
 
@@ -72,7 +70,7 @@ export default function ModalEditAbsensi({
       bgColor: 'bg-green-50 hover:bg-green-100',
       borderColor: 'border-green-200',
       activeColor: 'bg-green-500 text-white border-green-600',
-      textColor: 'text-green-700'
+      textColor: 'text-green-700',
     },
     {
       value: 'izin',
@@ -81,7 +79,7 @@ export default function ModalEditAbsensi({
       bgColor: 'bg-yellow-50 hover:bg-yellow-100',
       borderColor: 'border-yellow-200',
       activeColor: 'bg-yellow-500 text-white border-yellow-600',
-      textColor: 'text-yellow-700'
+      textColor: 'text-yellow-700',
     },
     {
       value: 'sakit',
@@ -90,7 +88,7 @@ export default function ModalEditAbsensi({
       bgColor: 'bg-orange-50 hover:bg-orange-100',
       borderColor: 'border-orange-200',
       activeColor: 'bg-orange-500 text-white border-orange-600',
-      textColor: 'text-orange-700'
+      textColor: 'text-orange-700',
     },
     {
       value: 'alpha',
@@ -99,8 +97,8 @@ export default function ModalEditAbsensi({
       bgColor: 'bg-red-50 hover:bg-red-100',
       borderColor: 'border-red-200',
       activeColor: 'bg-red-500 text-white border-red-600',
-      textColor: 'text-red-700'
-    }
+      textColor: 'text-red-700',
+    },
   ]
 
   return (
@@ -109,7 +107,8 @@ export default function ModalEditAbsensi({
         <DialogHeader>
           <DialogTitle className="text-xl">Edit Kehadiran</DialogTitle>
           <DialogDescription className="text-base">
-            <span className="font-semibold">{data.anggota.nama}</span> • {data.anggota.nomor_anggota} • {data.anggota.kelas || '-'}
+            <span className="font-semibold">{data.anggota.nama}</span> •{' '}
+            {data.anggota.nomor_anggota} • {data.anggota.kelas || '-'}
           </DialogDescription>
         </DialogHeader>
 
@@ -118,12 +117,16 @@ export default function ModalEditAbsensi({
           <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
             <div className="flex items-center gap-2 text-sm text-slate-700">
               <Clock className="w-4 h-4 text-blue-600" />
-              <span className="font-medium">Tanggal: {format(new Date(tanggal), 'EEEE, dd MMMM yyyy', { locale: id })}</span>
+              <span className="font-medium">
+                Tanggal: {format(new Date(tanggal), 'EEEE, dd MMMM yyyy', { locale: id })}
+              </span>
             </div>
             {data.absensi && (
               <div className="flex items-center gap-2 text-sm text-slate-500 mt-2 pt-2 border-t border-slate-200">
                 <Clock className="w-4 h-4" />
-                <span>Absen sebelumnya: {format(new Date(data.absensi.created_at), 'HH:mm')} WIB</span>
+                <span>
+                  Absen sebelumnya: {format(new Date(data.absensi.created_at), 'HH:mm')} WIB
+                </span>
               </div>
             )}
           </div>
@@ -141,7 +144,7 @@ export default function ModalEditAbsensi({
             <div className="grid grid-cols-2 gap-3">
               {statusOptions.map((option) => {
                 const isActive = status === option.value
-                
+
                 return (
                   <button
                     key={option.value}
@@ -149,25 +152,30 @@ export default function ModalEditAbsensi({
                     onClick={() => setStatus(option.value)}
                     className={`
                       relative flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200
-                      ${isActive 
-                        ? option.activeColor + ' shadow-lg scale-[1.02]' 
-                        : `${option.bgColor} ${option.borderColor} hover:scale-[1.01]`
+                      ${
+                        isActive
+                          ? option.activeColor + ' shadow-lg scale-[1.02]'
+                          : `${option.bgColor} ${option.borderColor} hover:scale-[1.01]`
                       }
                     `}
                   >
-                    <div className={`
+                    <div
+                      className={`
                       mb-2 transition-colors duration-200
                       ${isActive ? 'text-white' : option.textColor}
-                    `}>
+                    `}
+                    >
                       {option.icon}
                     </div>
-                    <span className={`
+                    <span
+                      className={`
                       font-semibold text-sm transition-colors duration-200
                       ${isActive ? 'text-white' : 'text-slate-700'}
-                    `}>
+                    `}
+                    >
                       {option.label}
                     </span>
-                    
+
                     {/* Active indicator */}
                     {isActive && (
                       <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full border-2 border-blue-500 flex items-center justify-center">
@@ -206,22 +214,23 @@ export default function ModalEditAbsensi({
             <p className="text-sm text-blue-700 flex items-center gap-2">
               <span className="font-semibold">Informasi Poin:</span>
               {status === 'hadir' && 'Hadir = +10 poin'}
-              {(status === 'izin' || status === 'sakit') && `${status === 'izin' ? 'Izin' : 'Sakit'} = +5 poin`}
+              {(status === 'izin' || status === 'sakit') &&
+                `${status === 'izin' ? 'Izin' : 'Sakit'} = +5 poin`}
               {status === 'alpha' && 'Alpha = 0 poin'}
             </p>
           </div>
 
           <DialogFooter className="gap-2 pt-2">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => onOpenChange(false)}
               className="flex-1 sm:flex-none"
             >
               Batal
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading}
               className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 transition-colors"
             >
@@ -230,7 +239,9 @@ export default function ModalEditAbsensi({
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Menyimpan...
                 </>
-              ) : 'Simpan Perubahan'}
+              ) : (
+                'Simpan Perubahan'
+              )}
             </Button>
           </DialogFooter>
         </form>

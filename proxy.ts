@@ -4,20 +4,20 @@ import { updateSession } from '@/lib/supabase/middleware'
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
-  
+
   // Halaman yang tidak perlu proteksi
   const publicPaths = [
-    '/', 
-    '/auth/login', 
+    '/',
+    '/auth/login',
     '/auth/register',
-    '/auth/lupa-password',           // <-- TAMBAHKAN INI
-    '/auth/reset-password'            // <-- TAMBAHKAN JUGA
+    '/auth/lupa-password', // <-- TAMBAHKAN INI
+    '/auth/reset-password', // <-- TAMBAHKAN JUGA
   ]
   const isPublicPath = publicPaths.includes(pathname)
-  
+
   // Update session
   const response = await updateSession(request)
-  
+
   // Dapatkan user
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,36 +32,38 @@ export async function proxy(request: NextRequest) {
       },
     }
   )
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   // Kalau halaman public, lanjutkan
   if (isPublicPath) {
     return response
   }
-  
+
   // Kalau tidak login, redirect ke login
   if (!user) {
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
-  
+
   // Kalau di halaman pairing, lanjutkan (khusus untuk yang belum punya nomor)
   if (pathname === '/pairing') {
     return response
   }
-  
+
   // Untuk halaman lain (dashboard, dll), cek apakah sudah punya nomor anggota
   const { data: anggota } = await supabase
     .from('anggota')
     .select('nomor_anggota')
     .eq('email', user.email)
     .single()
-  
+
   // Kalau belum punya nomor anggota, redirect ke pairing
   if (!anggota?.nomor_anggota) {
     return NextResponse.redirect(new URL('/pairing', request.url))
   }
-  
+
   return response
 }
 

@@ -1,26 +1,26 @@
-"use client";
+'use client'
 
-import { memo, useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { memo, useEffect, useState } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Search, RefreshCw } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+} from '@/components/ui/select'
+import { Search, RefreshCw } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 interface FilterLeaderboardProps {
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
-  filterKelas: string;
-  onKelasChange: (value: string) => void;
-  totalData: number;
-  onRefresh: () => void;
+  searchTerm: string
+  onSearchChange: (value: string) => void
+  filterKelas: string
+  onKelasChange: (value: string) => void
+  totalData: number
+  onRefresh: () => void
 }
 
 export const FilterLeaderboard = memo(function FilterLeaderboard({
@@ -31,21 +31,18 @@ export const FilterLeaderboard = memo(function FilterLeaderboard({
   totalData,
   onRefresh,
 }: FilterLeaderboardProps) {
-  const [kelasOptions, setKelasOptions] = useState<string[]>([]);
+  const [kelasOptions, setKelasOptions] = useState<string[]>([])
 
   // Load kelas dari database
   useEffect(() => {
     const loadKelas = async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("kelas")
-        .select("nama")
-        .order("nama");
+      const supabase = createClient()
+      const { data } = await supabase.from('kelas').select('nama').order('nama')
 
-      setKelasOptions(data?.map((k) => k.nama) || []);
-    };
-    loadKelas();
-  }, []);
+      setKelasOptions(data?.map((k) => k.nama) || [])
+    }
+    loadKelas()
+  }, [])
 
   return (
     <Card>
@@ -78,21 +75,14 @@ export const FilterLeaderboard = memo(function FilterLeaderboard({
           </Select>
 
           {/* Refresh */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onRefresh}
-            className="h-10 w-full sm:w-auto"
-          >
+          <Button variant="outline" size="sm" onClick={onRefresh} className="h-10 w-full sm:w-auto">
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
         </div>
 
-        <div className="text-sm text-slate-500 mt-3">
-          Total {totalData} anggota terdaftar
-        </div>
+        <div className="text-sm text-slate-500 mt-3">Total {totalData} anggota terdaftar</div>
       </CardContent>
     </Card>
-  );
-});
+  )
+})

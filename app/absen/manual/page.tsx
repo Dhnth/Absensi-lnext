@@ -1,18 +1,12 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Hash,
   CheckCircle2,
@@ -31,61 +25,82 @@ import {
   User,
   QrCode,
   FileText,
-} from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { format, formatDistanceToNow } from "date-fns";
-import { id } from "date-fns/locale/id";
+} from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { format, formatDistanceToNow } from 'date-fns'
+import { id } from 'date-fns/locale/id'
 
 export default function AbsenManualPage() {
-  const router = useRouter();
+  const router = useRouter()
 
   // State untuk form dan loading
-  const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(true);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [nomorAnggota, setNomorAnggota] = useState("");
+  const [loading, setLoading] = useState(false)
+  const [loadingData, setLoadingData] = useState(true)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [nomorAnggota, setNomorAnggota] = useState('')
 
   // State untuk data yang ditampilkan
-  const [recentAbsen, setRecentAbsen] = useState<any[]>([]);
+  interface RecentAbsen {
+    id: number
+    poin: number
+    created_at: string
+    anggota?: {
+      nama: string
+      nomor_anggota: string
+      foto?: string
+    }
+  }
+  const [recentAbsen, setRecentAbsen] = useState<RecentAbsen[]>([])
   const [stats, setStats] = useState({
     totalHariIni: 0,
     hadir: 0,
     izin: 0,
     totalAnggota: 0,
     persentase: 0,
-  });
-  const [lastAbsen, setLastAbsen] = useState<any>(null);
-  const [isLibur, setIsLibur] = useState(false);
-  const [keteranganLibur, setKeteranganLibur] = useState("");
+  })
+
+  // baris 50 - SESUDAH
+  interface LastAbsen {
+    id: number
+    nama: string
+    nomor_anggota: string
+    poinDidapat: number
+    streakBaru: number
+    bonus: boolean
+    waktu?: string
+  }
+  const [lastAbsen, setLastAbsen] = useState<LastAbsen | null>(null)
+  const [isLibur, setIsLibur] = useState(false)
+  const [keteranganLibur, setKeteranganLibur] = useState('')
 
   useEffect(() => {
-    loadData();
-    const interval = setInterval(loadData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    loadData()
+    const interval = setInterval(loadData, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   const loadData = async () => {
-    const supabase = createClient();
-    const today = format(new Date(), "yyyy-MM-dd");
+    const supabase = createClient()
+    const today = format(new Date(), 'yyyy-MM-dd')
 
     try {
       const { data: pengaturan } = await supabase
-        .from("pengaturan_absen")
-        .select("*")
-        .eq("tanggal", today)
-        .maybeSingle();
+        .from('pengaturan_absen')
+        .select('*')
+        .eq('tanggal', today)
+        .maybeSingle()
 
-      if (pengaturan?.status === "tutup") {
-        setIsLibur(true);
-        setKeteranganLibur(pengaturan.keterangan || "Hari libur");
+      if (pengaturan?.status === 'tutup') {
+        setIsLibur(true)
+        setKeteranganLibur(pengaturan.keterangan || 'Hari libur')
       } else {
-        setIsLibur(false);
-        setKeteranganLibur("");
+        setIsLibur(false)
+        setKeteranganLibur('')
       }
 
       const { data: recent } = await supabase
-        .from("absensi")
+        .from('absensi')
         .select(
           `
           *,
@@ -96,25 +111,24 @@ export default function AbsenManualPage() {
           )
         `
         )
-        .eq("tanggal", today)
-        .order("created_at", { ascending: false })
-        .limit(5);
+        .eq('tanggal', today)
+        .order('created_at', { ascending: false })
+        .limit(5)
 
-      setRecentAbsen(recent || []);
+      setRecentAbsen(recent || [])
 
       const { data: semuaAbsen } = await supabase
-        .from("absensi")
-        .select("status")
-        .eq("tanggal", today);
+        .from('absensi')
+        .select('status')
+        .eq('tanggal', today)
 
-      const hadir = semuaAbsen?.filter((a) => a.status === "hadir").length || 0;
-      const izin =
-        semuaAbsen?.filter((a) => ["izin", "sakit"].includes(a.status)).length || 0;
+      const hadir = semuaAbsen?.filter((a) => a.status === 'hadir').length || 0
+      const izin = semuaAbsen?.filter((a) => ['izin', 'sakit'].includes(a.status)).length || 0
 
       const { count: totalAnggota } = await supabase
-        .from("anggota")
-        .select("*", { count: "exact", head: true })
-        .eq("is_active", true);
+        .from('anggota')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true)
 
       setStats({
         totalHariIni: semuaAbsen?.length || 0,
@@ -122,145 +136,147 @@ export default function AbsenManualPage() {
         izin,
         totalAnggota: totalAnggota || 0,
         persentase: totalAnggota ? Math.round((hadir / totalAnggota) * 100) : 0,
-      });
+      })
     } catch (error) {
-      console.error("Error loading data:", error);
+      console.error('Error loading data:', error)
     } finally {
-      setLoadingData(false);
+      setLoadingData(false)
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    setSuccess(false)
 
-    const supabase = createClient();
-    const today = format(new Date(), "yyyy-MM-dd");
+    const supabase = createClient()
+    const today = format(new Date(), 'yyyy-MM-dd')
 
     try {
       // CEK LIBUR
       const { data: pengaturan } = await supabase
-        .from("pengaturan_absen")
-        .select("*")
-        .eq("tanggal", today)
-        .maybeSingle();
+        .from('pengaturan_absen')
+        .select('*')
+        .eq('tanggal', today)
+        .maybeSingle()
 
-      if (pengaturan?.status === "tutup") {
-        setError(`Hari ini libur: ${pengaturan.keterangan || "Tutup absensi"}`);
-        setLoading(false);
-        return;
+      if (pengaturan?.status === 'tutup') {
+        setError(`Hari ini libur: ${pengaturan.keterangan || 'Tutup absensi'}`)
+        setLoading(false)
+        return
       }
 
       // VALIDASI NOMOR
-      const nomor = parseInt(nomorAnggota);
+      const nomor = parseInt(nomorAnggota)
       if (nomor < 2425001 || nomor > 2425100) {
-        setError("Nomor anggota tidak valid. Harus antara 2425001 - 2425100");
-        setLoading(false);
-        return;
+        setError('Nomor anggota tidak valid. Harus antara 2425001 - 2425100')
+        setLoading(false)
+        return
       }
 
       // CEK ANGGOTA
       const { data: anggota, error: cekError } = await supabase
-        .from("anggota")
-        .select("*")
-        .eq("nomor_anggota", nomorAnggota)
-        .single();
+        .from('anggota')
+        .select('*')
+        .eq('nomor_anggota', nomorAnggota)
+        .single()
 
       if (cekError || !anggota) {
-        setError(`Anggota dengan nomor ${nomorAnggota} tidak ditemukan`);
-        setLoading(false);
-        return;
+        setError(`Anggota dengan nomor ${nomorAnggota} tidak ditemukan`)
+        setLoading(false)
+        return
       }
 
       if (!anggota.is_active) {
-        setError(`Anggota ${anggota.nama} (${nomorAnggota}) tidak aktif`);
-        setLoading(false);
-        return;
+        setError(`Anggota ${anggota.nama} (${nomorAnggota}) tidak aktif`)
+        setLoading(false)
+        return
       }
 
       // CEK SUDAH ABSEN
       const { data: absenHariIni } = await supabase
-        .from("absensi")
-        .select("*")
-        .eq("anggota_id", anggota.id)
-        .eq("tanggal", today)
-        .maybeSingle();
+        .from('absensi')
+        .select('*')
+        .eq('anggota_id', anggota.id)
+        .eq('tanggal', today)
+        .maybeSingle()
 
       if (absenHariIni) {
-        setError(`Anggota ${anggota.nama} sudah absen hari ini dengan status: ${absenHariIni.status}`);
-        setLoading(false);
-        return;
+        setError(
+          `Anggota ${anggota.nama} sudah absen hari ini dengan status: ${absenHariIni.status}`
+        )
+        setLoading(false)
+        return
       }
 
       // HITUNG STREAK
-      const poinHadir = 10;
-      let streakBaru = (anggota.streak || 0) + 1;
-      const kemarin = format(new Date(Date.now() - 86400000), "yyyy-MM-dd");
+      const poinHadir = 10
+      let streakBaru = (anggota.streak || 0) + 1
+      const kemarin = format(new Date(Date.now() - 86400000), 'yyyy-MM-dd')
 
       const { data: liburKemarin } = await supabase
-        .from("pengaturan_absen")
-        .select("*")
-        .eq("tanggal", kemarin)
-        .eq("status", "tutup")
-        .maybeSingle();
+        .from('pengaturan_absen')
+        .select('*')
+        .eq('tanggal', kemarin)
+        .eq('status', 'tutup')
+        .maybeSingle()
 
       const { data: absenKemarin } = await supabase
-        .from("absensi")
-        .select("*")
-        .eq("anggota_id", anggota.id)
-        .eq("tanggal", kemarin)
-        .maybeSingle();
+        .from('absensi')
+        .select('*')
+        .eq('anggota_id', anggota.id)
+        .eq('tanggal', kemarin)
+        .maybeSingle()
 
       if (!liburKemarin) {
-        if (!absenKemarin || absenKemarin.status !== "hadir") {
-          streakBaru = 1;
+        if (!absenKemarin || absenKemarin.status !== 'hadir') {
+          streakBaru = 1
         }
       } else {
-        streakBaru = anggota.streak || 0;
+        streakBaru = anggota.streak || 0
       }
 
-      const bonusStreak = streakBaru % 7 === 0 ? 5 : 0;
+      const bonusStreak = streakBaru % 7 === 0 ? 5 : 0
 
       // INSERT ABSENSI
-      const { error: insertError } = await supabase.from("absensi").insert({
+      const { error: insertError } = await supabase.from('absensi').insert({
         anggota_id: anggota.id,
         tanggal: today,
-        status: "hadir",
+        status: 'hadir',
         poin: poinHadir + bonusStreak,
         keterangan: `Absen manual oleh petugas`,
-      });
+      })
 
       if (insertError) {
-        if (insertError.code === "23505") {
-          setError(`Anggota ${anggota.nama} sudah absen hari ini.`);
+        if (insertError.code === '23505') {
+          setError(`Anggota ${anggota.nama} sudah absen hari ini.`)
         } else {
-          throw insertError;
+          throw insertError
         }
-        setLoading(false);
-        return;
+        setLoading(false)
+        return
       }
 
       // HITUNG ULANG TOTAL POIN
       const { data: semuaAbsensi } = await supabase
-        .from("absensi")
-        .select("poin")
-        .eq("anggota_id", anggota.id);
+        .from('absensi')
+        .select('poin')
+        .eq('anggota_id', anggota.id)
 
-      const totalPoinBaru = semuaAbsensi?.reduce((sum, a) => sum + a.poin, 0) || 0;
+      const totalPoinBaru = semuaAbsensi?.reduce((sum, a) => sum + a.poin, 0) || 0
 
       // UPDATE ANGGOTA
       const { error: updateError } = await supabase
-        .from("anggota")
+        .from('anggota')
         .update({
           poin: totalPoinBaru,
           streak: streakBaru,
           last_absen: today,
         })
-        .eq("id", anggota.id);
+        .eq('id', anggota.id)
 
-      if (updateError) throw updateError;
+      if (updateError) throw updateError
 
       // SET HASIL SUKSES
       setLastAbsen({
@@ -268,34 +284,38 @@ export default function AbsenManualPage() {
         poinDidapat: poinHadir + bonusStreak,
         streakBaru,
         bonus: bonusStreak > 0,
-        waktu: new Date().toLocaleTimeString("id-ID", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
+        waktu: new Date().toLocaleTimeString('id-ID', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
         }),
-      });
-      setSuccess(true);
-      setNomorAnggota("");
+      })
+      setSuccess(true)
+      setNomorAnggota('')
 
-      await loadData();
+      await loadData()
 
       setTimeout(() => {
-        setSuccess(false);
-        setLastAbsen(null);
-      }, 7000);
-    } catch (err: any) {
-      setError(err.message || "Terjadi kesalahan");
+        setSuccess(false)
+        setLastAbsen(null)
+      }, 7000)
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Terjadi kesalahan')
+      }
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   if (loadingData) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
-    );
+    )
   }
 
   return (
@@ -303,9 +323,7 @@ export default function AbsenManualPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Absen Manual</h1>
-        <p className="text-slate-600 mt-1">
-          Input nomor anggota untuk mencatat kehadiran
-        </p>
+        <p className="text-slate-600 mt-1">Input nomor anggota untuk mencatat kehadiran</p>
       </div>
 
       {/* Alert Libur */}
@@ -386,9 +404,7 @@ export default function AbsenManualPage() {
               <Search className="w-5 h-5 text-blue-600" />
               Form Absensi
             </CardTitle>
-            <CardDescription>
-              Masukkan nomor anggota (2425001 - 2425100)
-            </CardDescription>
+            <CardDescription>Masukkan nomor anggota (2425001 - 2425100)</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
@@ -426,9 +442,7 @@ export default function AbsenManualPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-green-600 mt-1">
-                        Waktu: {lastAbsen.waktu}
-                      </p>
+                      <p className="text-xs text-green-600 mt-1">Waktu: {lastAbsen.waktu}</p>
                     </div>
                   </AlertDescription>
                 </Alert>
@@ -443,7 +457,7 @@ export default function AbsenManualPage() {
                     placeholder="Contoh: 2425001"
                     className="pl-9 text-center text-lg font-mono"
                     value={nomorAnggota}
-                    onChange={(e) => setNomorAnggota(e.target.value.replace(/\D/g, ""))}
+                    onChange={(e) => setNomorAnggota(e.target.value.replace(/\D/g, ''))}
                     required
                     autoFocus
                     disabled={loading || isLibur}
@@ -502,7 +516,7 @@ export default function AbsenManualPage() {
                     <div className="relative">
                       <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                         <span className="text-blue-600 font-semibold">
-                          {absen.anggota?.nama?.charAt(0) || "?"}
+                          {absen.anggota?.nama?.charAt(0) || '?'}
                         </span>
                       </div>
                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
@@ -572,5 +586,5 @@ export default function AbsenManualPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

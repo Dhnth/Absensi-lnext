@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Plus,
   Trash2,
@@ -16,188 +16,169 @@ import {
   Hash,
   Search,
   Filter,
-} from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+} from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function AdminStokNomor() {
-  const [stok, setStok] = useState<any[]>([]);
-  const [filteredStok, setFilteredStok] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [newNomor, setNewNomor] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<
-    "semua" | "tersedia" | "terpakai"
-  >("semua");
+  interface StokNomor {
+    id: number
+    nomor_anggota: string
+    status: 'tersedia' | 'terpakai'
+  }
+  const [stok, setStok] = useState<StokNomor[]>([])
+  const [filteredStok, setFilteredStok] = useState<StokNomor[]>([])
+  const [loading, setLoading] = useState(true)
+  const [newNomor, setNewNomor] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterStatus, setFilterStatus] = useState<'semua' | 'tersedia' | 'terpakai'>('semua')
   const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
-
-  useEffect(() => {
-    loadStok();
-  }, []);
-
-  useEffect(() => {
-    filterStok();
-  }, [searchTerm, filterStatus, stok]);
+    type: 'success' | 'error'
+    text: string
+  } | null>(null)
 
   const loadStok = async () => {
-    setLoading(true);
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("stok_nomor_anggota")
-      .select("*")
-      .order("nomor_anggota");
+    setLoading(true)
+    const supabase = createClient()
+    const { data } = await supabase.from('stok_nomor_anggota').select('*').order('nomor_anggota')
 
-    setStok(data || []);
-    setLoading(false);
-  };
+    setStok(data || [])
+    setLoading(false)
+  }
 
   const filterStok = () => {
-    let filtered = [...stok];
+    let filtered = [...stok]
 
     // Filter berdasarkan pencarian
     if (searchTerm) {
-      filtered = filtered.filter((item) =>
-        item.nomor_anggota.includes(searchTerm),
-      );
+      filtered = filtered.filter((item) => item.nomor_anggota.includes(searchTerm))
     }
 
     // Filter berdasarkan status
-    if (filterStatus !== "semua") {
-      filtered = filtered.filter((item) => item.status === filterStatus);
+    if (filterStatus !== 'semua') {
+      filtered = filtered.filter((item) => item.status === filterStatus)
     }
 
-    setFilteredStok(filtered);
-  };
+    setFilteredStok(filtered)
+  }
+
+  useEffect(() => {
+    const fetchStok = async () => {
+      await loadStok()
+    }
+    fetchStok()
+  }, [])
+
+  useEffect(() => {
+    filterStok()
+  }, [searchTerm, filterStatus, stok])
 
   const tambahNomor = async () => {
     if (!newNomor) {
-      setMessage({ type: "error", text: "Masukkan nomor anggota" });
-      setTimeout(() => setMessage(null), 3000);
-      return;
+      setMessage({ type: 'error', text: 'Masukkan nomor anggota' })
+      setTimeout(() => setMessage(null), 3000)
+      return
     }
 
-    const supabase = createClient();
-    
+    const supabase = createClient()
+
     const { error } = await supabase
-      .from("stok_nomor_anggota")
-      .insert({ nomor_anggota: newNomor, status: "tersedia" });
+      .from('stok_nomor_anggota')
+      .insert({ nomor_anggota: newNomor, status: 'tersedia' })
 
     if (error) {
       setMessage({
-        type: "error",
-        text: "Nomor sudah ada atau gagal ditambahkan",
-      });
+        type: 'error',
+        text: 'Nomor sudah ada atau gagal ditambahkan',
+      })
     } else {
-
-      setMessage({ type: "success", text: "Nomor berhasil ditambahkan" });
-      setNewNomor("");
-      loadStok();
+      setMessage({ type: 'success', text: 'Nomor berhasil ditambahkan' })
+      setNewNomor('')
+      loadStok()
     }
-    setTimeout(() => setMessage(null), 3000);
-  };
+    setTimeout(() => setMessage(null), 3000)
+  }
 
   const hapusNomor = async (id: number, nomor: string) => {
-    const supabase = createClient();
-    
+    const supabase = createClient()
 
-    const { error } = await supabase
-      .from("stok_nomor_anggota")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from('stok_nomor_anggota').delete().eq('id', id)
 
     if (!error) {
-      setMessage({ type: "success", text: "Nomor berhasil dihapus" });
-      loadStok();
-      setTimeout(() => setMessage(null), 3000);
+      setMessage({ type: 'success', text: 'Nomor berhasil dihapus' })
+      loadStok()
+      setTimeout(() => setMessage(null), 3000)
     }
-  };
+  }
 
   const generateBanyak = async () => {
-    setLoading(true);
-    const supabase = createClient();
+    setLoading(true)
+    const supabase = createClient()
 
     // Cari nomor terakhir
     const lastNomor =
-      stok.length > 0
-        ? Math.max(...stok.map((s) => parseInt(s.nomor_anggota)))
-        : 2425000;
+      stok.length > 0 ? Math.max(...stok.map((s) => parseInt(s.nomor_anggota))) : 2425000
 
-    const newNomors = [];
+    const newNomors = []
     for (let i = 1; i <= 10; i++) {
       newNomors.push({
         nomor_anggota: (lastNomor + i).toString(),
-        status: "tersedia",
-      });
+        status: 'tersedia',
+      })
     }
 
-    const { error } = await supabase
-      .from("stok_nomor_anggota")
-      .insert(newNomors);
+    const { error } = await supabase.from('stok_nomor_anggota').insert(newNomors)
 
     if (!error) {
-
-      setMessage({ type: "success", text: "10 nomor berhasil digenerate" });
-      loadStok();
+      setMessage({ type: 'success', text: '10 nomor berhasil digenerate' })
+      loadStok()
     }
-    setLoading(false);
-    setTimeout(() => setMessage(null), 3000);
-  };
+    setLoading(false)
+    setTimeout(() => setMessage(null), 3000)
+  }
 
   const copyToClipboard = (nomor: string) => {
-    navigator.clipboard.writeText(nomor);
-    setMessage({ type: "success", text: "Nomor disalin!" });
-    setTimeout(() => setMessage(null), 2000);
-  };
+    navigator.clipboard.writeText(nomor)
+    setMessage({ type: 'success', text: 'Nomor disalin!' })
+    setTimeout(() => setMessage(null), 2000)
+  }
 
   const getStatusBadge = (status: string) => {
-    if (status === "tersedia") {
+    if (status === 'tersedia') {
       return (
-        <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">
-          Tersedia
-        </span>
-      );
+        <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">Tersedia</span>
+      )
     } else {
       return (
-        <span className="px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded-full">
-          Terpakai
-        </span>
-      );
+        <span className="px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded-full">Terpakai</span>
+      )
     }
-  };
+  }
 
-  const tersedia = stok.filter((s) => s.status === "tersedia").length;
-  const terpakai = stok.filter((s) => s.status !== "tersedia").length;
+  const tersedia = stok.filter((s) => s.status === 'tersedia').length
+  const terpakai = stok.filter((s) => s.status !== 'tersedia').length
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Stok Nomor Anggota</h1>
-        <p className="text-slate-600 mt-1">
-          Kelola stok nomor anggota yang tersedia
-        </p>
+        <p className="text-slate-600 mt-1">Kelola stok nomor anggota yang tersedia</p>
       </div>
 
       {/* Pesan */}
       {message && (
         <Alert
           className={
-            message.type === "success"
-              ? "bg-green-50 border-green-200"
-              : "bg-red-50 border-red-200"
+            message.type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
           }
         >
-          {message.type === "success" ? (
+          {message.type === 'success' ? (
             <CheckCircle2 className="h-4 w-4 text-green-600" />
           ) : (
             <AlertCircle className="h-4 w-4 text-red-600" />
           )}
           <AlertDescription
-            className={
-              message.type === "success" ? "text-green-700" : "text-red-700"
-            }
+            className={message.type === 'success' ? 'text-green-700' : 'text-red-700'}
           >
             {message.text}
           </AlertDescription>
@@ -267,11 +248,7 @@ export default function AdminStokNomor() {
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah
               </Button>
-              <Button
-                variant="outline"
-                onClick={generateBanyak}
-                disabled={loading}
-              >
+              <Button variant="outline" onClick={generateBanyak} disabled={loading}>
                 <Copy className="w-4 h-4 mr-2" />
                 Generate 10
               </Button>
@@ -299,24 +276,24 @@ export default function AdminStokNomor() {
             </div>
             <div className="flex gap-2">
               <Button
-                variant={filterStatus === "semua" ? "default" : "outline"}
+                variant={filterStatus === 'semua' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setFilterStatus("semua")}
+                onClick={() => setFilterStatus('semua')}
               >
                 Semua
               </Button>
               <Button
-                variant={filterStatus === "tersedia" ? "default" : "outline"}
+                variant={filterStatus === 'tersedia' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setFilterStatus("tersedia")}
+                onClick={() => setFilterStatus('tersedia')}
                 className="text-green-600"
               >
                 Tersedia
               </Button>
               <Button
-                variant={filterStatus === "terpakai" ? "default" : "outline"}
+                variant={filterStatus === 'terpakai' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setFilterStatus("terpakai")}
+                onClick={() => setFilterStatus('terpakai')}
                 className="text-slate-600"
               >
                 Terpakai
@@ -347,9 +324,9 @@ export default function AdminStokNomor() {
                     className={`
                       relative group p-3 rounded-lg border transition-all
                       ${
-                        item.status === "tersedia"
-                          ? "bg-green-50 border-green-200 hover:bg-green-100"
-                          : "bg-slate-50 border-slate-200 opacity-70"
+                        item.status === 'tersedia'
+                          ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                          : 'bg-slate-50 border-slate-200 opacity-70'
                       }
                     `}
                   >
@@ -357,12 +334,10 @@ export default function AdminStokNomor() {
                       <span className="font-mono text-sm sm:text-base font-medium">
                         {item.nomor_anggota}
                       </span>
-                      <span className="text-xs mt-1">
-                        {getStatusBadge(item.status)}
-                      </span>
+                      <span className="text-xs mt-1">{getStatusBadge(item.status)}</span>
 
                       {/* Tombol aksi muncul saat hover (khusus tersedia) */}
-                      {item.status === "tersedia" && (
+                      {item.status === 'tersedia' && (
                         <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Button
                             variant="ghost"
@@ -396,5 +371,5 @@ export default function AdminStokNomor() {
         </Card>
       )}
     </div>
-  );
+  )
 }

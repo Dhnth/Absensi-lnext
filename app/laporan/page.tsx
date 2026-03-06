@@ -1,26 +1,39 @@
-"use client"
+'use client'
 
-import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { format } from "date-fns"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CheckCircle2, AlertCircle, FileText } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
-import { FilterLaporan } from "./components/FilterLaporan"
-import { StatistikCard } from "./components/StatistikCard"
-import { TabelRekap } from "./components/TabelRekap"
-import { RekapAnggota, StatistikLaporan } from "./components/types"
-import { exportToExcel } from "./utils/excelFormatter"
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { format } from 'date-fns'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { CheckCircle2, AlertCircle, FileText } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { FilterLaporan } from './components/FilterLaporan'
+import { StatistikCard } from './components/StatistikCard'
+import { TabelRekap } from './components/TabelRekap'
+import { RekapAnggota, StatistikLaporan } from './components/types'
+import { exportToExcel } from './utils/excelFormatter'
 
 export default function LaporanPage() {
   const router = useRouter()
-  
+
   // State
   const [loading, setLoading] = useState(true)
   const [exportLoading, setExportLoading] = useState(false)
   const [data, setData] = useState<RekapAnggota[]>([])
-  const [detailData, setDetailData] = useState<any[]>([])
+  interface RekapData {
+    // definisikan sesuai struktur data
+    anggota_id: number
+    nomor_anggota: string
+    nama: string
+    kelas: string | null
+    total_hadir: number
+    total_izin: number
+    total_sakit: number
+    total_alpha: number
+    total_absen: number
+    total_poin: number
+  }
+  const [detailData, setDetailData] = useState<RekapData[]>([])
   const [statistik, setStatistik] = useState<StatistikLaporan>({
     total_anggota: 0,
     total_hadir: 0,
@@ -29,16 +42,16 @@ export default function LaporanPage() {
     total_alpha: 0,
     total_poin: 0,
     rata_poin: 0,
-    presensi_rate: 0
+    presensi_rate: 0,
   })
-  
+
   // Filter
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [filterKelas, setFilterKelas] = useState("semua")
-  
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [filterKelas, setFilterKelas] = useState('semua')
+
   // Message
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   // Load data saat filter berubah
   useEffect(() => {
@@ -58,7 +71,7 @@ export default function LaporanPage() {
         .select('id, nomor_anggota, nama, kelas, is_active')
         .eq('is_active', true)
 
-      if (filterKelas !== "semua") {
+      if (filterKelas !== 'semua') {
         anggotaQuery = anggotaQuery.eq('kelas', filterKelas)
       }
 
@@ -68,14 +81,16 @@ export default function LaporanPage() {
       // ========== LANGKAH 2: Ambil semua absensi dalam periode ==========
       const { data: absensi, error: absensiError } = await supabase
         .from('absensi')
-        .select(`
+        .select(
+          `
           *,
           anggota:anggota_id (
             nomor_anggota,
             nama,
             kelas
           )
-        `)
+        `
+        )
         .gte('tanggal', startDate)
         .lte('tanggal', endDate)
         .order('tanggal', { ascending: true })
@@ -84,8 +99,8 @@ export default function LaporanPage() {
 
       // ========== LANGKAH 3: Kelompokkan absensi per tanggal ==========
       const absensiPerTanggal = new Map()
-      
-      absensi?.forEach(item => {
+
+      absensi?.forEach((item) => {
         if (!absensiPerTanggal.has(item.tanggal)) {
           absensiPerTanggal.set(item.tanggal, [])
         }
@@ -94,20 +109,20 @@ export default function LaporanPage() {
           nama: item.anggota?.nama,
           kelas: item.anggota?.kelas,
           status: item.status,
-          poin: item.poin
+          poin: item.poin,
         })
       })
 
       const detailDataArray = Array.from(absensiPerTanggal.entries()).map(([tanggal, data]) => ({
         tanggal,
-        data
+        data,
       }))
 
       setDetailData(detailDataArray)
 
       // ========== LANGKAH 4: Buat rekap per anggota ==========
       const absensiMap = new Map()
-      absensi?.forEach(item => {
+      absensi?.forEach((item) => {
         if (!absensiMap.has(item.anggota_id)) {
           absensiMap.set(item.anggota_id, [])
         }
@@ -116,18 +131,16 @@ export default function LaporanPage() {
 
       const rekapData: RekapAnggota[] = []
 
-      semuaAnggota?.forEach(anggota => {
-
+      semuaAnggota?.forEach((anggota) => {
         // TAMBAHKAN INTERFACE/TYPE
         interface AbsensiItem {
-          status: string;
-          poin: number;
+          status: string
+          poin: number
           // tambah properti lain jika ada
         }
 
-
         const absenAnggota = absensiMap.get(anggota.id) || []
-        
+
         const totalHadir = absenAnggota.filter((a: AbsensiItem) => a.status === 'hadir').length
         const totalIzin = absenAnggota.filter((a: AbsensiItem) => a.status === 'izin').length
         const totalSakit = absenAnggota.filter((a: AbsensiItem) => a.status === 'sakit').length
@@ -144,7 +157,7 @@ export default function LaporanPage() {
           total_sakit: totalSakit,
           total_alpha: totalAlpha,
           total_absen: absenAnggota.length,
-          total_poin: totalPoin
+          total_poin: totalPoin,
         })
       })
 
@@ -165,45 +178,52 @@ export default function LaporanPage() {
         total_alpha: totalAlpha,
         total_poin: totalPoin,
         rata_poin: rekapData.length ? Math.round(totalPoin / rekapData.length) : 0,
-        presensi_rate: totalAbsen ? Math.round((totalHadir / totalAbsen) * 100) : 0
+        presensi_rate: totalAbsen ? Math.round((totalHadir / totalAbsen) * 100) : 0,
       })
-
-    } catch (error: any) {
-      console.error('Error loading data:', error)
-      setMessage({ type: 'error', text: error.message || 'Gagal memuat data' })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error loading data:', error)
+        setMessage({ type: 'error', text: error.message })
+      } else {
+        setMessage({ type: 'error', text: 'Gagal memuat data' })
+      }
     } finally {
       setLoading(false)
     }
   }
 
-// Di handleExport
-const handleExport = useCallback(() => {
-  try {
-    setExportLoading(true)
-    
-    // Ambil semua anggota dari data rekap
-    const semuaAnggota = data.map(d => ({
-      nomor_anggota: d.nomor_anggota,
-      nama: d.nama,
-      kelas: d.kelas || ''
-    }))
-    
-    exportToExcel(
-      data, 
-      detailData, 
-      semuaAnggota, // ← KIRIM SEMUA ANGGOTA
-      startDate, 
-      endDate
-    )
-    
-    setMessage({ type: 'success', text: 'Export berhasil!' })
-  } catch (error: any) {
-    setMessage({ type: 'error', text: error.message || 'Gagal export' })
-  } finally {
-    setExportLoading(false)
-    setTimeout(() => setMessage(null), 3000)
-  }
-}, [data, detailData, startDate, endDate])
+  // Di handleExport
+  const handleExport = useCallback(() => {
+    try {
+      setExportLoading(true)
+
+      // Ambil semua anggota dari data rekap
+      const semuaAnggota = data.map((d) => ({
+        nomor_anggota: d.nomor_anggota,
+        nama: d.nama,
+        kelas: d.kelas || '',
+      }))
+
+      exportToExcel(
+        data,
+        detailData,
+        semuaAnggota, // ← KIRIM SEMUA ANGGOTA
+        startDate,
+        endDate
+      )
+
+      setMessage({ type: 'success', text: 'Export berhasil!' })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage({ type: 'error', text: error.message })
+      } else {
+        setMessage({ type: 'error', text: 'Gagal export' })
+      }
+    } finally {
+      setExportLoading(false)
+      setTimeout(() => setMessage(null), 3000)
+    }
+  }, [data, detailData, startDate, endDate])
 
   return (
     <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto">
@@ -220,13 +240,19 @@ const handleExport = useCallback(() => {
 
       {/* Pesan */}
       {message && (
-        <Alert className={message.type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}>
+        <Alert
+          className={
+            message.type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+          }
+        >
           {message.type === 'success' ? (
             <CheckCircle2 className="h-4 w-4 text-green-600" />
           ) : (
             <AlertCircle className="h-4 w-4 text-red-600" />
           )}
-          <AlertDescription className={message.type === 'success' ? 'text-green-700' : 'text-red-700'}>
+          <AlertDescription
+            className={message.type === 'success' ? 'text-green-700' : 'text-red-700'}
+          >
             {message.text}
           </AlertDescription>
         </Alert>
@@ -246,16 +272,10 @@ const handleExport = useCallback(() => {
       />
 
       {/* Statistik */}
-      {!loading && data.length > 0 && (
-        <StatistikCard statistik={statistik} />
-      )}
+      {!loading && data.length > 0 && <StatistikCard statistik={statistik} />}
 
       {/* Tabel Rekap */}
-      <TabelRekap
-        data={data}
-        loading={loading}
-        itemsPerPage={10}
-      />
+      <TabelRekap data={data} loading={loading} itemsPerPage={10} />
 
       {/* Info */}
       {!loading && data.length === 0 && (

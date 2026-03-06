@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import {
   Dialog,
@@ -7,10 +7,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { AlertTriangle, RotateCcw, Trash2, UserX, Loader2 } from "lucide-react"
-import { Anggota } from "./types"
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { AlertTriangle, RotateCcw, Trash2, UserX, Loader2 } from 'lucide-react'
+import { Anggota } from './types'
 
 interface ModalKonfirmasiProps {
   open: boolean
@@ -27,20 +27,23 @@ export default function ModalKonfirmasi({
   mode,
   anggota,
   onConfirm,
-  loading = false
+  loading = false,
 }: ModalKonfirmasiProps) {
   if (!anggota) return null
 
   const getTitle = () => {
-    switch(mode) {
-      case 'aktifkan': return 'Aktifkan Anggota'
-      case 'nonaktifkan': return 'Nonaktifkan Anggota'
-      case 'hapus': return 'Hapus Permanen Anggota'
+    switch (mode) {
+      case 'aktifkan':
+        return 'Aktifkan Anggota'
+      case 'nonaktifkan':
+        return 'Nonaktifkan Anggota'
+      case 'hapus':
+        return 'Hapus Permanen Anggota'
     }
   }
 
   const getDescription = () => {
-    switch(mode) {
+    switch (mode) {
       case 'aktifkan':
         return `Anggota ${anggota.nama} akan dapat login kembali dan mengakses aplikasi.`
       case 'nonaktifkan':
@@ -51,26 +54,35 @@ export default function ModalKonfirmasi({
   }
 
   const getIcon = () => {
-    switch(mode) {
-      case 'aktifkan': return <RotateCcw className="w-6 h-6 text-green-600" />
-      case 'nonaktifkan': return <UserX className="w-6 h-6 text-orange-600" />
-      case 'hapus': return <Trash2 className="w-6 h-6 text-red-600" />
+    switch (mode) {
+      case 'aktifkan':
+        return <RotateCcw className="w-6 h-6 text-green-600" />
+      case 'nonaktifkan':
+        return <UserX className="w-6 h-6 text-orange-600" />
+      case 'hapus':
+        return <Trash2 className="w-6 h-6 text-red-600" />
     }
   }
 
   const getButtonColor = () => {
-    switch(mode) {
-      case 'aktifkan': return 'bg-green-600 hover:bg-green-700'
-      case 'nonaktifkan': return 'bg-orange-600 hover:bg-orange-700'
-      case 'hapus': return 'bg-red-600 hover:bg-red-700'
+    switch (mode) {
+      case 'aktifkan':
+        return 'bg-green-600 hover:bg-green-700'
+      case 'nonaktifkan':
+        return 'bg-orange-600 hover:bg-orange-700'
+      case 'hapus':
+        return 'bg-red-600 hover:bg-red-700'
     }
   }
 
   const getButtonText = () => {
-    switch(mode) {
-      case 'aktifkan': return 'Ya, Aktifkan'
-      case 'nonaktifkan': return 'Ya, Nonaktifkan'
-      case 'hapus': return 'Ya, Hapus Permanen'
+    switch (mode) {
+      case 'aktifkan':
+        return 'Ya, Aktifkan'
+      case 'nonaktifkan':
+        return 'Ya, Nonaktifkan'
+      case 'hapus':
+        return 'Ya, Hapus Permanen'
     }
   }
 
@@ -82,9 +94,7 @@ export default function ModalKonfirmasi({
             {getIcon()}
             <DialogTitle className="text-xl">{getTitle()}</DialogTitle>
           </div>
-          <DialogDescription className="text-base pt-2">
-            {getDescription()}
-          </DialogDescription>
+          <DialogDescription className="text-base pt-2">{getDescription()}</DialogDescription>
         </DialogHeader>
 
         {mode === 'hapus' && (
@@ -105,12 +115,7 @@ export default function ModalKonfirmasi({
           >
             Batal
           </Button>
-          <Button
-            type="button"
-            className={getButtonColor()}
-            onClick={onConfirm}
-            disabled={loading}
-          >
+          <Button type="button" className={getButtonColor()} onClick={onConfirm} disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />

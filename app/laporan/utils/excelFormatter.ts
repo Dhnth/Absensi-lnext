@@ -22,12 +22,14 @@ export async function exportToExcel(
   endDate: string
 ) {
   const workbook = new ExcelJS.Workbook()
-  
+
   // Sheet: Detail Harian
   await createDetailSheet(workbook, detailData, semuaAnggota, startDate, endDate) // ← KIRIM
 
   const buffer = await workbook.xlsx.writeBuffer()
-  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  })
   saveAs(blob, `laporan-absensi-${startDate}-to-${endDate}.xlsx`)
 }
 
@@ -40,143 +42,163 @@ async function createDetailSheet(
 ) {
   const sheet = workbook.addWorksheet('Laporan Absensi')
 
-  const start = new Date(startDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-  const end = new Date(endDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+  const start = new Date(startDate).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+  const end = new Date(endDate).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
 
   // ========== GANTI: Ambil dari semuaAnggota, BUKAN dari data ==========
-  const anggotaList = [...semuaAnggota].sort((a, b) => 
+  const anggotaList = [...semuaAnggota].sort((a, b) =>
     a.nomor_anggota.localeCompare(b.nomor_anggota)
   )
 
   // Urutkan tanggal
-  const sortedData = [...data].sort((a, b) => 
-    new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime()
+  const sortedData = [...data].sort(
+    (a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime()
   )
 
   // ========== BUAT RENTANG TANGGAL LENGKAP ==========
   const tanggalList: Date[] = []
   const startDateObj = new Date(startDate)
   const endDateObj = new Date(endDate)
-  
+
   for (let d = new Date(startDateObj); d <= endDateObj; d.setDate(d.getDate() + 1)) {
     tanggalList.push(new Date(d))
   }
 
-const titleRow = sheet.addRow(['LAPORAN ABSENSI KOMUNITAS'])
+  const titleRow = sheet.addRow(['LAPORAN ABSENSI KOMUNITAS'])
 
-sheet.mergeCells(`A${titleRow.number}:F${titleRow.number}`)
+  sheet.mergeCells(`A${titleRow.number}:F${titleRow.number}`)
 
-for (let i = 1; i <= 6; i++) {
-  const cell = titleRow.getCell(i)
+  for (let i = 1; i <= 6; i++) {
+    const cell = titleRow.getCell(i)
 
-  cell.fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FF4F46E5' }
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4F46E5' },
+    }
+
+    cell.font = {
+      bold: true,
+      size: 16,
+      color: { argb: 'FFFFFFFF' },
+    }
+
+    cell.alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+    }
   }
-
-  cell.font = {
-    bold: true,
-    size: 16,
-    color: { argb: 'FFFFFFFF' }
-  }
-
-  cell.alignment = {
-    horizontal: 'center',
-    vertical: 'middle'
-  }
-}
   // Periode
-const periodeRow = sheet.addRow([`Periode: ${start} - ${end}`])
+  const periodeRow = sheet.addRow([`Periode: ${start} - ${end}`])
 
-sheet.mergeCells(`A${periodeRow.number}:F${periodeRow.number}`)
+  sheet.mergeCells(`A${periodeRow.number}:F${periodeRow.number}`)
 
-for (let i = 1; i <= 6; i++) {
-  const cell = periodeRow.getCell(i)
+  for (let i = 1; i <= 6; i++) {
+    const cell = periodeRow.getCell(i)
 
-  cell.font = {
-    bold: true,
-    size: 12,
-    color: { argb: 'FF4F46E5' }
+    cell.font = {
+      bold: true,
+      size: 12,
+      color: { argb: 'FF4F46E5' },
+    }
+
+    cell.alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+    }
   }
-
-  cell.alignment = {
-    horizontal: 'center',
-    vertical: 'middle'
-  }
-}
 
   // Empty row
   sheet.addRow([])
 
   // ========== HEADER UTAMA ==========
-const headerRow = sheet.addRow(['No', 'Nomor Anggota', 'Nama', 'Kelas', 'Kehadiran', 'Total Poin'])
+  const headerRow = sheet.addRow([
+    'No',
+    'Nomor Anggota',
+    'Nama',
+    'Kelas',
+    'Kehadiran',
+    'Total Poin',
+  ])
 
-for (let i = 1; i <= 6; i++) {
-  const cell = headerRow.getCell(i)
+  for (let i = 1; i <= 6; i++) {
+    const cell = headerRow.getCell(i)
 
-  cell.font = {
-    bold: true,
-    color: { argb: 'FFFFFFFF' }
+    cell.font = {
+      bold: true,
+      color: { argb: 'FFFFFFFF' },
+    }
+
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFF97316' },
+    }
+
+    cell.alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+    }
+
+    cell.border = {
+      top: { style: 'thin' },
+      left: { style: 'thin' },
+      bottom: { style: 'thin' },
+      right: { style: 'thin' },
+    }
   }
-
-  cell.fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FFF97316' }
-  }
-
-  cell.alignment = {
-    horizontal: 'center',
-    vertical: 'middle'
-  }
-
-  cell.border = {
-    top: { style: 'thin' },
-    left: { style: 'thin' },
-    bottom: { style: 'thin' },
-    right: { style: 'thin' }
-  }
-}
 
   // ========== DATA PER TANGGAL ==========
-  tanggalList.forEach((tanggal, tanggalIdx) => { // ← GUNAKAN tanggalList
+  tanggalList.forEach((tanggal, tanggalIdx) => {
+    // ← GUNAKAN tanggalList
     const dayName = tanggal.toLocaleDateString('id-ID', { weekday: 'long' })
-    const dateStr = tanggal.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-    
+    const dateStr = tanggal.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+
     // Cari data absensi untuk tanggal ini
     const tanggalStr = tanggal.toISOString().split('T')[0]
-    const item = sortedData.find(d => d.tanggal.split('T')[0] === tanggalStr)
-    
+    const item = sortedData.find((d) => d.tanggal.split('T')[0] === tanggalStr)
+
     // Header Tanggal
-const dateHeaderRow = sheet.addRow([`${dayName}, ${dateStr}`])
+    const dateHeaderRow = sheet.addRow([`${dayName}, ${dateStr}`])
 
-sheet.mergeCells(`A${dateHeaderRow.number}:F${dateHeaderRow.number}`)
+    sheet.mergeCells(`A${dateHeaderRow.number}:F${dateHeaderRow.number}`)
 
-for (let i = 1; i <= 6; i++) {
-  const cell = dateHeaderRow.getCell(i)
+    for (let i = 1; i <= 6; i++) {
+      const cell = dateHeaderRow.getCell(i)
 
-  cell.font = {
-    bold: true,
-    italic: true,
-    size: 12
-  }
+      cell.font = {
+        bold: true,
+        italic: true,
+        size: 12,
+      }
 
-  cell.fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FFE6F0FA' }
-  }
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE6F0FA' },
+      }
 
-  cell.alignment = {
-    vertical: 'middle'
-  }
-}
-    
+      cell.alignment = {
+        vertical: 'middle',
+      }
+    }
+
     // Buat Map untuk absensi di tanggal ini (jika ada)
     const absensiMap = new Map()
     if (item) {
-      item.data.forEach(absen => {
+      item.data.forEach((absen) => {
         absensiMap.set(absen.nomor_anggota, absen)
       })
     }
@@ -184,14 +206,19 @@ for (let i = 1; i <= 6; i++) {
     // ========== LOOP SEMUA ANGGOTA (setiap tanggal) ==========
     anggotaList.forEach((anggota, idx) => {
       const absen = absensiMap.get(anggota.nomor_anggota)
-      
+
       let status = 'Alpha'
       let poin = 0
-      
+
       if (absen) {
-        status = absen.status === 'hadir' ? 'Hadir' : 
-                absen.status === 'izin' ? 'Izin' : 
-                absen.status === 'sakit' ? 'Sakit' : 'Alpha'
+        status =
+          absen.status === 'hadir'
+            ? 'Hadir'
+            : absen.status === 'izin'
+              ? 'Izin'
+              : absen.status === 'sakit'
+                ? 'Sakit'
+                : 'Alpha'
         poin = absen.poin
       }
 
@@ -201,7 +228,7 @@ for (let i = 1; i <= 6; i++) {
         anggota.nama,
         anggota.kelas || '-',
         status,
-        poin
+        poin,
       ])
 
       // Style berdasarkan status
@@ -218,12 +245,12 @@ for (let i = 1; i <= 6; i++) {
       }
 
       // Border untuk semua cell
-      row.eachCell(cell => {
+      row.eachCell((cell) => {
         cell.border = {
           top: { style: 'thin' },
           left: { style: 'thin' },
           bottom: { style: 'thin' },
-          right: { style: 'thin' }
+          right: { style: 'thin' },
         }
         cell.alignment = { vertical: 'middle' }
       })
@@ -241,7 +268,7 @@ for (let i = 1; i <= 6; i++) {
           cell.fill = {
             type: 'pattern',
             pattern: 'solid',
-            fgColor: { argb: 'FFF2F2F2' }
+            fgColor: { argb: 'FFF2F2F2' },
           }
         }
       }
@@ -252,32 +279,47 @@ for (let i = 1; i <= 6; i++) {
   })
 
   // ========== RINGKASAN DI BAWAH ==========
-  const summaryStartRow = sheet.lastRow?.number + 2 || 0
+  const summaryStartRow = (sheet.lastRow?.number ?? 0) + 2
 
   // Hitung total dari SEMUA DATA (termasuk yang alpha otomatis)
-  let totalHadir = 0, totalIzin = 0, totalSakit = 0, totalAlpha = 0, totalPoin = 0
-  
+  let totalHadir = 0,
+    totalIzin = 0,
+    totalSakit = 0,
+    totalAlpha = 0,
+    totalPoin = 0
+
   // Loop setiap tanggal dan setiap anggota
-  tanggalList.forEach(tanggal => {
+  tanggalList.forEach((tanggal) => {
     const tanggalStr = tanggal.toISOString().split('T')[0]
-    const item = sortedData.find(d => d.tanggal.split('T')[0] === tanggalStr)
-    
+    const item = sortedData.find((d) => d.tanggal.split('T')[0] === tanggalStr)
+
     const absensiMap = new Map()
     if (item) {
-      item.data.forEach(absen => {
+      item.data.forEach((absen) => {
         absensiMap.set(absen.nomor_anggota, absen)
       })
     }
 
-    anggotaList.forEach(anggota => {
+    anggotaList.forEach((anggota) => {
       const absen = absensiMap.get(anggota.nomor_anggota)
-      
+
       if (absen) {
-        switch(absen.status) {
-          case 'hadir': totalHadir++; totalPoin += absen.poin; break
-          case 'izin': totalIzin++; totalPoin += absen.poin; break
-          case 'sakit': totalSakit++; totalPoin += absen.poin; break
-          case 'alpha': totalAlpha++; break
+        switch (absen.status) {
+          case 'hadir':
+            totalHadir++
+            totalPoin += absen.poin
+            break
+          case 'izin':
+            totalIzin++
+            totalPoin += absen.poin
+            break
+          case 'sakit':
+            totalSakit++
+            totalPoin += absen.poin
+            break
+          case 'alpha':
+            totalAlpha++
+            break
         }
       } else {
         totalAlpha++ // Tidak ada absen = Alpha
@@ -286,30 +328,30 @@ for (let i = 1; i <= 6; i++) {
   })
 
   // Buat tabel ringkasan dengan style
-const summaryTitle = sheet.addRow(['RINGKASAN'])
+  const summaryTitle = sheet.addRow(['RINGKASAN'])
 
-sheet.mergeCells(`A${summaryTitle.number}:D${summaryTitle.number}`)
+  sheet.mergeCells(`A${summaryTitle.number}:D${summaryTitle.number}`)
 
-for (let i = 1; i <= 4; i++) {
-  const cell = summaryTitle.getCell(i)
+  for (let i = 1; i <= 4; i++) {
+    const cell = summaryTitle.getCell(i)
 
-  cell.fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FF4F46E5' }
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4F46E5' },
+    }
+
+    cell.font = {
+      bold: true,
+      size: 14,
+      color: { argb: 'FFFFFFFF' },
+    }
+
+    cell.alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+    }
   }
-
-  cell.font = {
-    bold: true,
-    size: 14,
-    color: { argb: 'FFFFFFFF' }
-  }
-
-  cell.alignment = {
-    horizontal: 'center',
-    vertical: 'middle'
-  }
-}
 
   // Data ringkasan
   const summaryData = [
@@ -320,50 +362,52 @@ for (let i = 1; i <= 4; i++) {
     ['Total Alpha', totalAlpha],
     ['Total Poin', totalPoin],
     [],
-    ['Rata-rata Poin per Anggota', anggotaList.length ? Math.round(totalPoin / anggotaList.length) : 0]
+    [
+      'Rata-rata Poin per Anggota',
+      anggotaList.length ? Math.round(totalPoin / anggotaList.length) : 0,
+    ],
   ]
 
-summaryData.forEach(([label, value]) => {
-  const row = sheet.addRow([label, '', '', value])
+  summaryData.forEach(([label, value]) => {
+    const row = sheet.addRow([label, '', '', value])
 
-  sheet.mergeCells(`A${row.number}:C${row.number}`)
+    sheet.mergeCells(`A${row.number}:C${row.number}`)
 
-  row.getCell(1).font = { bold: true }
+    row.getCell(1).font = { bold: true }
 
-  row.getCell(1).alignment = {
-    horizontal: 'left',
-    vertical: 'middle'
-  }
+    row.getCell(1).alignment = {
+      horizontal: 'left',
+      vertical: 'middle',
+    }
 
-  row.getCell(4).alignment = {
-    horizontal: 'center',
-    vertical: 'middle'
-  }
-})
+    row.getCell(4).alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+    }
+  })
 
   // Border untuk ringkasan
   for (let i = summaryStartRow; i <= sheet.lastRow?.number; i++) {
     const row = sheet.getRow(i)
     for (let c = 1; c <= 4; c++) {
-  const cell = row.getCell(c)
+      const cell = row.getCell(c)
 
-  cell.border = {
-    top: { style: 'thin' },
-    left: { style: 'thin' },
-    bottom: { style: 'thin' },
-    right: { style: 'thin' }
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      }
+    }
   }
-}
-  }
-
 
   // Set column widths
   sheet.columns = [
-    { width: 5 },   // No
-    { width: 15 },  // Nomor Anggota
-    { width: 30 },  // Nama
-    { width: 10 },  // Kelas
-    { width: 12 },  // Kehadiran
-    { width: 10 }   // Total Poin
+    { width: 5 }, // No
+    { width: 15 }, // Nomor Anggota
+    { width: 30 }, // Nama
+    { width: 10 }, // Kelas
+    { width: 12 }, // Kehadiran
+    { width: 10 }, // Total Poin
   ]
 }

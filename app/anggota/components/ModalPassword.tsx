@@ -1,36 +1,31 @@
-"use client";
+'use client'
 
-import { useState } from "react";
+import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { CheckCircle2, Copy } from "lucide-react";
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { CheckCircle2, Copy } from 'lucide-react'
 
 interface ModalPasswordProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  email: string;
-  password: string;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  email: string
+  password: string
 }
 
-export default function ModalPassword({
-  open,
-  onOpenChange,
-  email,
-  password,
-}: ModalPasswordProps) {
-  const [copied, setCopied] = useState(false);
+export default function ModalPassword({ open, onOpenChange, email, password }: ModalPasswordProps) {
+  const [copied, setCopied] = useState(false)
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(password);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    navigator.clipboard.writeText(password)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -64,7 +59,7 @@ export default function ModalPassword({
                 className="gap-1"
               >
                 <Copy className="w-3 h-3" />
-                {copied ? "Tersalin!" : "Salin"}
+                {copied ? 'Tersalin!' : 'Salin'}
               </Button>
             </div>
           </div>
@@ -83,5 +78,5 @@ export default function ModalPassword({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

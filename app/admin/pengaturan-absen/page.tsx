@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Calendar,
   Lock,
@@ -19,10 +19,10 @@ import {
   CalendarDays,
   ChevronDown,
   ChevronUp,
-} from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { format } from "date-fns";
-import { id } from "date-fns/locale/id";
+} from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { format } from 'date-fns'
+import { id } from 'date-fns/locale/id'
 import {
   Dialog,
   DialogContent,
@@ -30,155 +30,183 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog'
+
+interface PengaturanAbsen {
+  id: number
+  tanggal: string
+  status: 'buka' | 'tutup'
+  keterangan: string | null
+}
 
 export default function PengaturanAbsenPage() {
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<any[]>([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false)
+  const [data, setData] = useState<PengaturanAbsen[]>([])
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [expandedId, setExpandedId] = useState<number | null>(null)
   const [formData, setFormData] = useState({
-    tanggal: format(new Date(), "yyyy-MM-dd"),
-    status: "tutup",
-    keterangan: "",
-  });
+    tanggal: format(new Date(), 'yyyy-MM-dd'),
+    status: 'tutup',
+    keterangan: '',
+  })
   const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+    type: 'success' | 'error'
+    text: string
+  } | null>(null)
 
   // State untuk modal hapus
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<{ id: number; tanggal: string; keterangan: string } | null>(null);
-
-  useEffect(() => {
-    loadData();
-  }, []);
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<{
+    id: number
+    tanggal: string
+    keterangan: string
+  } | null>(null)
 
   const loadData = async () => {
-    const supabase = createClient();
+    const supabase = createClient()
     const { data } = await supabase
-      .from("pengaturan_absen")
-      .select("*")
-      .order("tanggal", { ascending: false })
-      .limit(30);
+      .from('pengaturan_absen')
+      .select('*')
+      .order('tanggal', { ascending: false })
+      .limit(30)
 
-    setData(data || []);
-  };
+    setData(data || [])
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await loadData()
+    }
+    fetchData()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage(null);
+    e.preventDefault()
+    setLoading(true)
+    setMessage(null)
 
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const supabase = createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    if (editingId) {
-      // Update
-      const { error } = await supabase
-        .from("pengaturan_absen")
-        .update({
+    try {
+      if (editingId) {
+        // Update
+        const { error } = await supabase
+          .from('pengaturan_absen')
+          .update({
+            status: formData.status,
+            keterangan: formData.keterangan,
+          })
+          .eq('id', editingId)
+
+        if (error) throw error
+        setMessage({ type: 'success', text: 'Berhasil diupdate' })
+      } else {
+        // Insert
+        const { error } = await supabase.from('pengaturan_absen').insert({
+          tanggal: formData.tanggal,
           status: formData.status,
           keterangan: formData.keterangan,
         })
-        .eq("id", editingId);
 
-      if (error) {
-        setMessage({ type: "error", text: "Gagal mengupdate" });
-      } else {
-        setMessage({ type: "success", text: "Berhasil diupdate" });
-      }
-    } else {
-      // Insert
-      const { error } = await supabase.from("pengaturan_absen").insert({
-        tanggal: formData.tanggal,
-        status: formData.status,
-        keterangan: formData.keterangan,
-      });
-
-      if (error) {
-        if (error.code === "23505") {
-          setMessage({ type: "error", text: "Tanggal sudah diatur" });
+        if (error) {
+          if (error.code === '23505') {
+            setMessage({ type: 'error', text: 'Tanggal sudah diatur' })
+          } else {
+            throw error
+          }
         } else {
-          setMessage({ type: "error", text: "Gagal menyimpan" });
+          setMessage({ type: 'success', text: 'Berhasil disimpan' })
         }
-      } else {
-        setMessage({ type: "success", text: "Berhasil disimpan" });
       }
+
+      loadData()
+      setShowForm(false)
+      setEditingId(null)
+      setFormData({
+        tanggal: format(new Date(), 'yyyy-MM-dd'),
+        status: 'tutup',
+        keterangan: '',
+      })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage({ type: 'error', text: error.message })
+      } else {
+        setMessage({ type: 'error', text: 'Gagal menyimpan' })
+      }
+    } finally {
+      setLoading(false)
+      setTimeout(() => setMessage(null), 3000)
     }
-
-    loadData();
-    setShowForm(false);
-    setEditingId(null);
-    setFormData({
-      tanggal: format(new Date(), "yyyy-MM-dd"),
-      status: "tutup",
-      keterangan: "",
-    });
-    setLoading(false);
-
-    setTimeout(() => setMessage(null), 3000);
-  };
+  }
 
   const handleDeleteClick = (id: number, tanggal: string, keterangan: string) => {
-    setItemToDelete({ id, tanggal, keterangan });
-    setShowDeleteModal(true);
-  };
+    setItemToDelete({ id, tanggal, keterangan })
+    setShowDeleteModal(true)
+  }
 
   const handleDeleteConfirm = async () => {
-    if (!itemToDelete) return;
+    if (!itemToDelete) return
 
-    setDeleteLoading(true);
-    const supabase = createClient();
+    setDeleteLoading(true)
+    const supabase = createClient()
 
-    const { error } = await supabase
-      .from("pengaturan_absen")
-      .delete()
-      .eq("id", itemToDelete.id);
+    try {
+      const { error } = await supabase.from('pengaturan_absen').delete().eq('id', itemToDelete.id)
 
-    if (!error) {
-      setMessage({ type: "success", text: "Berhasil dihapus" });
-      loadData();
-      setShowDeleteModal(false);
-      setItemToDelete(null);
-    } else {
-      setMessage({ type: "error", text: "Gagal menghapus" });
+      if (error) throw error
+
+      setMessage({ type: 'success', text: 'Berhasil dihapus' })
+      loadData()
+      setShowDeleteModal(false)
+      setItemToDelete(null)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage({ type: 'error', text: error.message })
+      } else {
+        setMessage({ type: 'error', text: 'Gagal menghapus' })
+      }
+    } finally {
+      setDeleteLoading(false)
+      setTimeout(() => setMessage(null), 3000)
     }
+  }
 
-    setDeleteLoading(false);
-    setTimeout(() => setMessage(null), 3000);
-  };
-
-  const handleEdit = (item: any) => {
-    setEditingId(item.id);
+  const handleEdit = (item: PengaturanAbsen) => {
+    setEditingId(item.id)
     setFormData({
       tanggal: item.tanggal,
       status: item.status,
-      keterangan: item.keterangan || "",
-    });
-    setShowForm(true);
-  };
+      keterangan: item.keterangan || '',
+    })
+    setShowForm(true)
+  }
 
   const toggleExpand = (id: number) => {
-    setExpandedId(expandedId === id ? null : id);
-  };
+    setExpandedId(expandedId === id ? null : id)
+  }
 
   const toggleStatus = async (id: number, currentStatus: string) => {
-    const supabase = createClient();
-    const newStatus = currentStatus === "buka" ? "tutup" : "buka";
+    const supabase = createClient()
+    const newStatus = currentStatus === 'buka' ? 'tutup' : 'buka'
 
-    const { error } = await supabase
-      .from("pengaturan_absen")
-      .update({ status: newStatus })
-      .eq("id", id);
+    try {
+      const { error } = await supabase
+        .from('pengaturan_absen')
+        .update({ status: newStatus })
+        .eq('id', id)
 
-    if (!error) {
-      loadData();
+      if (!error) {
+        loadData()
+      }
+    } catch (error) {
+      console.error('Error toggling status:', error)
     }
-  };
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -200,20 +228,16 @@ export default function PengaturanAbsenPage() {
       {message && (
         <Alert
           className={
-            message.type === "success"
-              ? "bg-green-50 border-green-200"
-              : "bg-red-50 border-red-200"
+            message.type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
           }
         >
-          {message.type === "success" ? (
+          {message.type === 'success' ? (
             <CheckCircle2 className="h-4 w-4 text-green-600" />
           ) : (
             <AlertCircle className="h-4 w-4 text-red-600" />
           )}
           <AlertDescription
-            className={
-              message.type === "success" ? "text-green-700" : "text-red-700"
-            }
+            className={message.type === 'success' ? 'text-green-700' : 'text-red-700'}
           >
             {message.text}
           </AlertDescription>
@@ -224,7 +248,7 @@ export default function PengaturanAbsenPage() {
       {showForm && (
         <Card>
           <CardHeader>
-            <CardTitle>{editingId ? "Edit" : "Tambah"} Jadwal Libur</CardTitle>
+            <CardTitle>{editingId ? 'Edit' : 'Tambah'} Jadwal Libur</CardTitle>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
@@ -234,9 +258,7 @@ export default function PengaturanAbsenPage() {
                   id="tanggal"
                   type="date"
                   value={formData.tanggal}
-                  onChange={(e) =>
-                    setFormData({ ...formData, tanggal: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
                   disabled={!!editingId}
                   required
                 />
@@ -247,9 +269,7 @@ export default function PengaturanAbsenPage() {
                 <select
                   id="status"
                   value={formData.status}
-                  onChange={(e) =>
-                    setFormData({ ...formData, status: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   className="w-full p-2 border rounded-md"
                 >
                   <option value="tutup">🔒 Tutup (Libur)</option>
@@ -263,15 +283,13 @@ export default function PengaturanAbsenPage() {
                   id="keterangan"
                   placeholder="Contoh: Libur Nasional, Hari Raya, dll"
                   value={formData.keterangan}
-                  onChange={(e) =>
-                    setFormData({ ...formData, keterangan: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, keterangan: e.target.value })}
                 />
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-                  {loading ? "Menyimpan..." : "Simpan"}
+                  {loading ? 'Menyimpan...' : 'Simpan'}
                 </Button>
                 <Button
                   type="button"
@@ -314,22 +332,22 @@ export default function PengaturanAbsenPage() {
                       <div className="flex items-center gap-3 flex-1">
                         <div
                           className={`w-1.5 h-8 rounded-full ${
-                            item.status === "buka" ? "bg-green-500" : "bg-red-500"
+                            item.status === 'buka' ? 'bg-green-500' : 'bg-red-500'
                           }`}
                         />
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm">
-                              {format(new Date(item.tanggal), "dd/MM/yyyy")}
+                              {format(new Date(item.tanggal), 'dd/MM/yyyy')}
                             </span>
                             <span
                               className={`px-2 py-0.5 text-xs rounded-full ${
-                                item.status === "buka"
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                item.status === 'buka'
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-red-100 text-red-700'
                               }`}
                             >
-                              {item.status === "buka" ? "Buka" : "Tutup"}
+                              {item.status === 'buka' ? 'Buka' : 'Tutup'}
                             </span>
                           </div>
                           {item.keterangan && (
@@ -357,13 +375,13 @@ export default function PengaturanAbsenPage() {
                           onClick={() => toggleStatus(item.id, item.status)}
                           className="h-8 px-2"
                         >
-                          {item.status === "buka" ? (
+                          {item.status === 'buka' ? (
                             <Lock className="w-4 h-4 text-red-500" />
                           ) : (
                             <Unlock className="w-4 h-4 text-green-500" />
                           )}
                           <span className="ml-1 text-xs">
-                            {item.status === "buka" ? "Tutup" : "Buka"}
+                            {item.status === 'buka' ? 'Tutup' : 'Buka'}
                           </span>
                         </Button>
                         <Button
@@ -393,24 +411,24 @@ export default function PengaturanAbsenPage() {
                     <div className="flex items-center gap-4 flex-1">
                       <div
                         className={`w-2 h-10 rounded-full ${
-                          item.status === "buka" ? "bg-green-500" : "bg-red-500"
+                          item.status === 'buka' ? 'bg-green-500' : 'bg-red-500'
                         }`}
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold">
-                            {format(new Date(item.tanggal), "EEEE, dd MMMM yyyy", {
+                            {format(new Date(item.tanggal), 'EEEE, dd MMMM yyyy', {
                               locale: id,
                             })}
                           </span>
                           <span
                             className={`px-2 py-1 text-xs rounded-full ${
-                              item.status === "buka"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+                              item.status === 'buka'
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-red-100 text-red-700'
                             }`}
                           >
-                            {item.status === "buka" ? "🔓 Buka" : "🔒 Tutup"}
+                            {item.status === 'buka' ? '🔓 Buka' : '🔒 Tutup'}
                           </span>
                         </div>
                         {item.keterangan && (
@@ -425,17 +443,13 @@ export default function PengaturanAbsenPage() {
                         size="sm"
                         onClick={() => toggleStatus(item.id, item.status)}
                       >
-                        {item.status === "buka" ? (
+                        {item.status === 'buka' ? (
                           <Lock className="w-4 h-4 text-red-500" />
                         ) : (
                           <Unlock className="w-4 h-4 text-green-500" />
                         )}
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(item)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(item)}>
                         <Edit className="w-4 h-4 text-blue-500" />
                       </Button>
                       <Button
@@ -466,14 +480,14 @@ export default function PengaturanAbsenPage() {
               Apakah Anda yakin ingin menghapus jadwal libur ini?
             </DialogDescription>
           </DialogHeader>
-          
+
           {itemToDelete && (
             <div className="py-4">
               <div className="bg-slate-50 p-4 rounded-lg space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm text-slate-500">Tanggal</span>
                   <span className="font-medium">
-                    {format(new Date(itemToDelete.tanggal), "EEEE, dd MMMM yyyy", { locale: id })}
+                    {format(new Date(itemToDelete.tanggal), 'EEEE, dd MMMM yyyy', { locale: id })}
                   </span>
                 </div>
                 {itemToDelete.keterangan && (
@@ -483,9 +497,7 @@ export default function PengaturanAbsenPage() {
                   </div>
                 )}
               </div>
-              <p className="text-sm text-slate-500 mt-4">
-                Tindakan ini tidak dapat dibatalkan.
-              </p>
+              <p className="text-sm text-slate-500 mt-4">Tindakan ini tidak dapat dibatalkan.</p>
             </div>
           )}
 
@@ -497,23 +509,19 @@ export default function PengaturanAbsenPage() {
             >
               Batal
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteConfirm}
-              disabled={deleteLoading}
-            >
+            <Button variant="destructive" onClick={handleDeleteConfirm} disabled={deleteLoading}>
               {deleteLoading ? (
                 <>
                   <span className="animate-spin mr-2">◌</span>
                   Menghapus...
                 </>
               ) : (
-                "Ya, Hapus"
+                'Ya, Hapus'
               )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }
