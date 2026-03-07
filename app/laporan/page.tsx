@@ -13,6 +13,17 @@ import { TabelRekap } from './components/TabelRekap'
 import { RekapAnggota, StatistikLaporan } from './components/types'
 import { exportToExcel } from './utils/excelFormatter'
 
+interface DataAbsensi {
+  tanggal: string
+  data: Array<{
+    nomor_anggota: string
+    nama: string
+    kelas: string
+    status: string
+    poin: number
+  }>
+}
+
 export default function LaporanPage() {
   const router = useRouter()
 
@@ -20,19 +31,7 @@ export default function LaporanPage() {
   const [loading, setLoading] = useState(true)
   const [exportLoading, setExportLoading] = useState(false)
   const [data, setData] = useState<RekapAnggota[]>([])
-  interface DetailAbsensi {
-    nomor_anggota: string
-    nama: string
-    kelas: string
-    status: string
-    poin: number
-  }
-
-  interface DetailTanggal {
-    tanggal: string
-    data: DetailAbsensi[]
-  }
-  const [detailData, setDetailData] = useState<DetailTanggal[]>([])
+  const [detailData, setDetailData] = useState<DataAbsensi[]>([])
   const [statistik, setStatistik] = useState<StatistikLaporan>({
     total_anggota: 0,
     total_hadir: 0,
@@ -64,6 +63,23 @@ export default function LaporanPage() {
     const supabase = createClient()
 
     try {
+      // ========== Generate semua tanggal dalam rentang ==========
+      const generateDateRange = (start: string, end: string) => {
+        const dates: string[] = []
+        const currentDate = new Date(start)
+        const endDate = new Date(end)
+        
+        while (currentDate <= endDate) {
+          dates.push(format(currentDate, 'yyyy-MM-dd'))
+          currentDate.setDate(currentDate.getDate() + 1)
+        }
+        
+        return dates
+      }
+
+      const semuaTanggal = generateDateRange(startDate, endDate)
+      // =========================================================
+
       // ========== LANGKAH 1: Ambil semua anggota aktif ==========
       let anggotaQuery = supabase
         .from('anggota')
@@ -112,39 +128,60 @@ export default function LaporanPage() {
         })
       })
 
-      const detailDataArray = Array.from(absensiPerTanggal.entries()).map(([tanggal, data]) => ({
+      const detailDataArray: DataAbsensi[] = Array.from(absensiPerTanggal.entries()).map(([tanggal, data]) => ({
         tanggal,
         data,
       }))
 
       setDetailData(detailDataArray)
 
-      // ========== LANGKAH 4: Buat rekap per anggota ==========
-      const absensiMap = new Map()
-      absensi?.forEach((item) => {
-        if (!absensiMap.has(item.anggota_id)) {
-          absensiMap.set(item.anggota_id, [])
-        }
-        absensiMap.get(item.anggota_id).push(item)
+      // ========== LANGKAH 4: Buat rekap per anggota (DENGAN SEMUA TANGGAL) ==========
+      const rekapData: RekapAnggota[] = []
+      
+      // Buat map absensi per anggota per tanggal
+      const absensiMapByDate = new Map()
+      absensi?.forEach(item => {
+        const key = `${item.anggota_id}-${item.tanggal}`
+        absensiMapByDate.set(key, item)
       })
 
-      const rekapData: RekapAnggota[] = []
-
+      // Loop setiap anggota
       semuaAnggota?.forEach((anggota) => {
-        // TAMBAHKAN INTERFACE/TYPE
-        interface AbsensiItem {
-          status: string
-          poin: number
-          // tambah properti lain jika ada
-        }
+        let totalHadir = 0
+        let totalIzin = 0
+        let totalSakit = 0
+        let totalAlpha = 0
+        let totalPoin = 0
 
-        const absenAnggota = absensiMap.get(anggota.id) || []
-
-        const totalHadir = absenAnggota.filter((a: AbsensiItem) => a.status === 'hadir').length
-        const totalIzin = absenAnggota.filter((a: AbsensiItem) => a.status === 'izin').length
-        const totalSakit = absenAnggota.filter((a: AbsensiItem) => a.status === 'sakit').length
-        const totalAlpha = absenAnggota.filter((a: AbsensiItem) => a.status === 'alpha').length
-        const totalPoin = absenAnggota.reduce((sum: number, a: AbsensiItem) => sum + a.poin, 0)
+        // Loop setiap tanggal dalam periode (SEMUA TANGGAL)
+        semuaTanggal.forEach(tanggal => {
+          const key = `${anggota.id}-${tanggal}`
+          const absen = absensiMapByDate.get(key)
+          
+          if (absen) {
+            // Ada absensi
+            switch(absen.status) {
+              case 'hadir':
+                totalHadir++
+                totalPoin += absen.poin
+                break
+              case 'izin':
+                totalIzin++
+                totalPoin += absen.poin
+                break
+              case 'sakit':
+                totalSakit++
+                totalPoin += absen.poin
+                break
+              case 'alpha':
+                totalAlpha++
+                break
+            }
+          } else {
+            // Tidak ada absensi = ALPHA
+            totalAlpha++
+          }
+        })
 
         rekapData.push({
           anggota_id: anggota.id,
@@ -155,10 +192,11 @@ export default function LaporanPage() {
           total_izin: totalIzin,
           total_sakit: totalSakit,
           total_alpha: totalAlpha,
-          total_absen: absenAnggota.length,
+          total_absen: totalHadir + totalIzin + totalSakit + totalAlpha,
           total_poin: totalPoin,
         })
       })
+      // ===========================================================
 
       // ========== LANGKAH 5: Hitung statistik ==========
       const totalHadir = rekapData.reduce((sum, a) => sum + a.total_hadir, 0)
@@ -191,25 +229,17 @@ export default function LaporanPage() {
     }
   }
 
-  // Di handleExport
   const handleExport = useCallback(() => {
     try {
       setExportLoading(true)
 
-      // Ambil semua anggota dari data rekap
       const semuaAnggota = data.map((d) => ({
         nomor_anggota: d.nomor_anggota,
         nama: d.nama,
         kelas: d.kelas || '',
       }))
 
-      exportToExcel(
-        data,
-        detailData,
-        semuaAnggota, // ← KIRIM SEMUA ANGGOTA
-        startDate,
-        endDate
-      )
+      exportToExcel(data, detailData, semuaAnggota, startDate, endDate)
 
       setMessage({ type: 'success', text: 'Export berhasil!' })
     } catch (error: unknown) {
